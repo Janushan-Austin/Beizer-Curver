@@ -26,6 +26,7 @@ namespace BeizerCurves
         PointClass CameraPos;
 
         double TStep;
+        double uStep
 
         #region Constructor and Setup functions
         public BeizerCurve()
