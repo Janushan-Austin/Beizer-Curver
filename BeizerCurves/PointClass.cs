@@ -75,5 +75,28 @@ namespace BeizerCurves
 
             return value;
         }
+
+
+        public static PointClass operator +(PointClass lhs, PointClass rhs)
+        {
+            PointClass value = new PointClass(lhs);
+
+            value.x += rhs.x;
+            value.y += rhs.y;
+            value.z += rhs.z;
+
+            return value;
+        }
+
+        public static PointClass operator -(PointClass lhs, PointClass rhs)
+        {
+            PointClass value = new PointClass(lhs);
+
+            value.x -= rhs.x;
+            value.y -= rhs.y;
+            value.z -= rhs.z;
+
+            return value;
+        }
     }
 }

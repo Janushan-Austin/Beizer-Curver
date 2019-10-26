@@ -66,7 +66,7 @@ namespace BeizerCurves
             //ProccessPoints("(-1,0, 2), (1, 15,7) ,(3,8,100), (7,6,15)");
 
 
-            if (ProccessPoints("(-1,0, 0), (3, 7,500),     (7,3,0)", ref Points, out NumberPoints))
+            if (ProccessPoints("(-1,0, 0), (3, 0,500),     (7,0,0)", ref Points, out NumberPoints))
             {
                 //AxisOrigin = new PointClass(Points[0]);
                 
@@ -355,13 +355,13 @@ namespace BeizerCurves
 
                 AxisOrigin = new PointClass(WorldPoints.Index(0));
 
-                XAxis.x = AxisOrigin.x + XAxisLength;
+                XAxis = AxisOrigin + new PointClass(XAxisLength,0,0);
                 XAxis.PointColor = Color.Pink;
 
-                YAxis.y = AxisOrigin.y + YAxisLength;
+                YAxis = AxisOrigin + new PointClass(0,YAxisLength,0);
                 YAxis.PointColor = Color.Pink;
 
-                ZAxis.z = AxisOrigin.z + ZAxisLength;
+                ZAxis = AxisOrigin + new PointClass(0, 0, ZAxisLength);
                 ZAxis.PointColor = Color.Pink;
 
                 WorldScreenPoints = new PointClass[WorldPoints.GetLength() + NumberPoints + 4];
@@ -561,12 +561,18 @@ namespace BeizerCurves
 
             ranges[0] = Maxs[0];
             ranges[1] = Maxs[1];
-            if (WidenRange == true)
+
+            for (int i = 0; i < ranges[0].Dimension; i++)
             {
-                for (int i = 0; i < ranges.Length; i++)
+                if (WidenRange == true)
                 {
                     ranges[0].SetComponent(i, ranges[0].GetComponent(i) - (ranges[1].GetComponent(i) - ranges[0].GetComponent(i)) * 0.2);
                     ranges[1].SetComponent(i, ranges[1].GetComponent(i) + (ranges[1].GetComponent(i) - ranges[0].GetComponent(i)) * 0.2);
+                }
+
+                if(ranges[1].GetComponent(i) - ranges[0].GetComponent(i) <= 0)
+                {
+                    ranges[1].SetComponent(i, ranges[1].GetComponent(i) + 1);
                 }
             }
 
