@@ -25,6 +25,10 @@ namespace BeizerCurves
         PointClass[] Ranges;
         PointClass CameraPos;
 
+        PointClass AxisOrigin = null;
+        PointClass XAxis, YAxis, ZAxis;
+        double XAxisLength, YAxisLength, ZAxisLength;
+
         double TStep;
 
         #region Constructor and Setup functions
@@ -54,14 +58,31 @@ namespace BeizerCurves
 
             InitializeComponent();
             SetupPicture();
+
+            XAxis = new PointClass(); YAxis = new PointClass(); ZAxis = new PointClass();
+            
+
             //ProccessPoints("(-2,-1) , (0,-13), (0,-14), (0.25,-14.59), (0.3, -14), (1.51, 0)");
             //ProccessPoints("(-1,0, 2), (1, 15,7) ,(3,8,100), (7,6,15)");
 
 
-            ProccessPoints("(-1,0, 0), (3, 7,500),     (7,3,0)", ref Points, out NumberPoints);
-            CreateParametricEquation(NumberPoints);
-
-            Draw();
+            if (ProccessPoints("(-1,0, 0), (3, 7,500),     (7,3,0)", ref Points, out NumberPoints))
+            {
+                //AxisOrigin = new PointClass(Points[0]);
+                
+                Ranges = CalculateRange(Points, false);
+                XAxisLength = Ranges[1].x - Ranges[0].x;
+                YAxisLength = Ranges[1].y - Ranges[0].y;
+                ZAxisLength = Ranges[1].z - Ranges[0].z;
+                CreateParametricEquation(NumberPoints);
+                Draw();
+            }
+            else
+            {
+                MessageBox.Show("Invalid set of Points, Please re-enter coordinates in following format: \n" +
+                                "\"(x1, y1, z1), (x2,y2,z3), ...\"");
+                DrawBackGround();
+            }
         }
 
         private void SetupPicture()
@@ -107,12 +128,12 @@ namespace BeizerCurves
             numberPoints = 0;
             if (!DeleteSpaces(ref pointsList))
             {
-                MessageBox.Show("Invalid set of Points");
+                //MessageBox.Show("Invalid set of Points");
                 return false;
             }
             if (!GetPoints(pointsList, ref points, out numberPoints))
             {
-                MessageBox.Show("Invalid set of Points");
+                //MessageBox.Show("Invalid set of Points");
                 return false;
             }
 
@@ -312,6 +333,8 @@ namespace BeizerCurves
                 PointClass pixel = new PointClass(dimension: 2);
                 int index;
 
+                Pen pen = new Pen(Color.Blue);
+
                 double[] vars = new double[NumberPoints + 1];
 
                 for (double t = 0.0; t <= 1.0; t += TStep)
@@ -329,10 +352,22 @@ namespace BeizerCurves
                     WorldPoint = new PointClass();
                 }
 
-                WorldScreenPoints = new PointClass[WorldPoints.GetLength() + NumberPoints];
+
+                AxisOrigin = new PointClass(WorldPoints.Index(0));
+
+                XAxis.x = AxisOrigin.x + XAxisLength;
+                XAxis.PointColor = Color.Pink;
+
+                YAxis.y = AxisOrigin.y + YAxisLength;
+                YAxis.PointColor = Color.Pink;
+
+                ZAxis.z = AxisOrigin.z + ZAxisLength;
+                ZAxis.PointColor = Color.Pink;
+
+                WorldScreenPoints = new PointClass[WorldPoints.GetLength() + NumberPoints + 4];
                 //WorldScreenPoints = new PointClass[WorldPoints.GetLength()];
                 int PointCount = WorldPoints.GetLength();
-                for (int i = 0; i< WorldScreenPoints.Length - NumberPoints; i++)
+                for (int i = 0; i < PointCount; i++)
                 {
                     WorldScreenPoints[i] = WorldPoints.RemoveFront();
                     WorldScreenPoints[i].Dimension = 2;
@@ -348,19 +383,26 @@ namespace BeizerCurves
                 }
 
 
+                WorldScreenPoints[PointCount + NumberPoints] = new PointClass(AxisOrigin);
+                WorldScreenPoints[PointCount + NumberPoints + 1] = new PointClass(XAxis);
+                WorldScreenPoints[PointCount + NumberPoints + 2] = new PointClass(YAxis);
+                WorldScreenPoints[PointCount + NumberPoints + 3] = new PointClass(ZAxis);
+
+
+
                 //Let A be CameraPos.x, B be CameraPos.y, D be CameraPos.z
                 //Xs = A + (WorldPoint[i].x - A)/(1-WorldPoint[i].z/CameraPos.z)
-                for (int i=0; i< WorldScreenPoints.Length; i++)
+                for (int i = 0; i < WorldScreenPoints.Length; i++)
                 {
-                    for(int j=0; j<2; j++)
+                    for (int j = 0; j < 2; j++)
                     {
                         double den = 1 - WorldScreenPoints[i].z / CameraPos.z;
                         double num = WorldScreenPoints[i].GetComponent(j) - CameraPos.GetComponent(j);
                         WorldScreenPoints[i].SetComponent(j, CameraPos.GetComponent(j) + num / den);
-                    }                                      
+                    }
                 }
 
-                CalculateRange(WorldScreenPoints);
+                Ranges = CalculateRange(WorldScreenPoints);
 
                 double[] dv = new double[WorldScreenPoints[0].Dimension];
                 dv[0] = (Ranges[1].x - Ranges[0].x) / PicCanvas.ClientSize.Width;
@@ -376,18 +418,47 @@ namespace BeizerCurves
 
                 WorldPoint.Dimension = 2;
 
-                for (index = 0; index < WorldScreenPoints.Length; index++)
+                for (index = 0; index < WorldScreenPoints.Length-4; index++)
                 {
                     WorldPoint = WorldScreenPoints[index];
                     pixel.x = (WorldPoint.x - Ranges[0].x) / dv[0];
                     pixel.y = (WorldPoint.y - Ranges[0].y) / dv[1];
                     pixel.PointColor = WorldPoint.PointColor;
+
                     if ((int)pixel.x < PicCanvas.ClientSize.Width && (int)pixel.x >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) < PicCanvas.ClientSize.Height)
                     {
                         bm.SetPixel((int)pixel.x, (int)(PicCanvas.ClientSize.Height - pixel.y), pixel.PointColor);
                     }
                 }
 
+                WorldPoint = WorldScreenPoints[index];
+                int ax = (int)((WorldPoint.x - Ranges[0].x) / dv[0]);
+                int ay = (int)((WorldPoint.y - Ranges[0].y) / dv[1]);
+                index++;
+
+                for (; index < WorldScreenPoints.Length; index++)
+                {
+                    WorldPoint = WorldScreenPoints[index];
+                    pixel.x = (WorldPoint.x - Ranges[0].x) / dv[0];
+                    pixel.y = (WorldPoint.y - Ranges[0].y) / dv[1];
+                    pen.Color = WorldPoint.PointColor;
+
+                    if ((int)pixel.x < PicCanvas.ClientSize.Width && (int)pixel.x >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) < PicCanvas.ClientSize.Height)
+                    {
+                        g.DrawLine(pen, ax, PicCanvas.ClientSize.Height - ay, (int)pixel.x, (int)(PicCanvas.ClientSize.Height-pixel.y));
+                    }
+                }
+
+
+                PicCanvas.Image = bm;
+            }
+        }
+
+        private void DrawBackGround(Color color = default(Color))
+        {
+            using (Graphics g = Graphics.FromImage(bm))
+            {
+                g.Clear(Color.Black);
                 PicCanvas.Image = bm;
             }
         }
@@ -461,68 +532,71 @@ namespace BeizerCurves
             CameraPos.z = -1;
         }
 
-        private void CalculateRange(PointClass[] points)
+        private PointClass[] CalculateRange(PointClass[] points, bool WidenRange = true)
         {
-            PointClass Maxs = new PointClass(dimension: points[0].Dimension), Mins = new PointClass(dimension: points[0].Dimension);
-
-            Maxs.x = points[0].x;
-            Maxs.y = points[0].y;
-            Maxs.z = points[0].z;
-            Mins.x = points[0].x;
-            Mins.y = points[0].y;
-            Mins.z = points[0].z;
+            //PointClass Maxs = new PointClass(dimension: points[0].Dimension), Mins = new PointClass(dimension: points[0].Dimension);
+            PointClass[] ranges = new PointClass[2];
+            PointClass[] Maxs = new PointClass[2];
+            Maxs[0] = new PointClass(points[0]);
+            Maxs[1] = new PointClass(points[0]);
 
             PointClass currentPoint;
 
             for (int i = 0; i < points.Length; i++)
             {
                 currentPoint = points[i];
-                for (int j = 0; j < Maxs.Dimension; j++)
+                for (int j = 0; j < Maxs[0].Dimension; j++)
                 {                    
-                    if (Maxs.GetComponent(j) < currentPoint.GetComponent(j))
+                    if (Maxs[1].GetComponent(j) < currentPoint.GetComponent(j))
                     {
-                        Maxs.SetComponent(j, currentPoint.GetComponent(j));
+                        Maxs[1].SetComponent(j, currentPoint.GetComponent(j));
                     }
-                    else if (Mins.GetComponent(j) > currentPoint.GetComponent(j))
+                    else if (Maxs[0].GetComponent(j) > currentPoint.GetComponent(j))
                     {
-                        Mins.SetComponent(j, currentPoint.GetComponent(j));
+                        Maxs[0].SetComponent(j, currentPoint.GetComponent(j));
                     }
                 }
             }
 
-            Ranges[0].x = Mins.x;
-            Ranges[0].y = Mins.y;
 
-            Ranges[1].x = Maxs.x;
-            Ranges[1].y = Maxs.y;
+            ranges[0] = Maxs[0];
+            ranges[1] = Maxs[1];
+            if (WidenRange == true)
+            {
+                for (int i = 0; i < ranges.Length; i++)
+                {
+                    ranges[0].SetComponent(i, ranges[0].GetComponent(i) - (ranges[1].GetComponent(i) - ranges[0].GetComponent(i)) * 0.2);
+                    ranges[1].SetComponent(i, ranges[1].GetComponent(i) + (ranges[1].GetComponent(i) - ranges[0].GetComponent(i)) * 0.2);
+                }
+            }
 
-            Ranges[0].x -= (Ranges[1].x - Ranges[0].x) * 0.2;
-            Ranges[1].x += (Ranges[1].x - Ranges[0].x) * 0.2;
-            Ranges[0].y -= (Ranges[1].y - Ranges[0].y) * 0.2;
-            Ranges[1].y += (Ranges[1].y - Ranges[0].y) * 0.2;
+            return ranges;
         }
 
         private void CameraChangeButton_Click(object sender, EventArgs e)
         {
             PointClass[] newCameraPos = null;
-            if(ProccessPoints(DeltaCameraInput.Text, ref newCameraPos, out int numberPoints))
+            if (ProccessPoints(DeltaCameraInput.Text, ref newCameraPos, out int numberPoints))
             {
-                if(numberPoints > 1)
+                if (numberPoints > 1)
                 {
-                    MessageBox.Show("Too many points provided for the Camera position, using the first found point");
-                    CameraPos = new PointClass(newCameraPos[0]);
-                    Draw();
+                    MessageBox.Show("Too many points provided for the Camera position, using the first found point\n" +
+                                    "Use format: \"(x1, y1, z1)\"");
                 }
-                else if(numberPoints <= 0)
+                else if (numberPoints <= 0)
                 {
-                    MessageBox.Show("No valid point provided for new Camera position");
+                    MessageBox.Show("No valid point provided for new Camera position" +
+                                    "Use format: \"(x1, y1, z1)\"");
+                    return;
                 }
-                else
-                {
-                    CameraPos = new PointClass(newCameraPos[0]);
-                    Draw();
-                }
-            }            
+                CameraPos = new PointClass(newCameraPos[0]);
+                Draw();
+            }
+            else
+            {
+                MessageBox.Show("No valid point provided for new Camera position\n" +
+                                "Use format: \"(x1, y1, z1)\"");
+            }
         }
     }
 

@@ -28,3 +28,13 @@ F:\CS_Classes\CS_480\BeizerCurves\BeizerCurves\obj\Debug\BeizerCurves.csproj.Gen
 F:\CS_Classes\CS_480\BeizerCurves\BeizerCurves\obj\Debug\BeizerCurves.csproj.CoreCompileInputs.cache
 F:\CS_Classes\CS_480\BeizerCurves\BeizerCurves\obj\Debug\BeizerCurves.exe
 F:\CS_Classes\CS_480\BeizerCurves\BeizerCurves\obj\Debug\BeizerCurves.pdb
+C:\Users\Austin\Documents\CS_Classes\CS_480\BeizerCurves\Beizer-Curver\BeizerCurves\bin\Debug\BeizerCurves.exe.config
+C:\Users\Austin\Documents\CS_Classes\CS_480\BeizerCurves\Beizer-Curver\BeizerCurves\bin\Debug\BeizerCurves.exe
+C:\Users\Austin\Documents\CS_Classes\CS_480\BeizerCurves\Beizer-Curver\BeizerCurves\bin\Debug\BeizerCurves.pdb
+C:\Users\Austin\Documents\CS_Classes\CS_480\BeizerCurves\Beizer-Curver\BeizerCurves\obj\Debug\BeizerCurves.csprojAssemblyReference.cache
+C:\Users\Austin\Documents\CS_Classes\CS_480\BeizerCurves\Beizer-Curver\BeizerCurves\obj\Debug\BeizerCurves.BeizerCurve.resources
+C:\Users\Austin\Documents\CS_Classes\CS_480\BeizerCurves\Beizer-Curver\BeizerCurves\obj\Debug\BeizerCurves.Properties.Resources.resources
+C:\Users\Austin\Documents\CS_Classes\CS_480\BeizerCurves\Beizer-Curver\BeizerCurves\obj\Debug\BeizerCurves.csproj.GenerateResource.cache
+C:\Users\Austin\Documents\CS_Classes\CS_480\BeizerCurves\Beizer-Curver\BeizerCurves\obj\Debug\BeizerCurves.csproj.CoreCompileInputs.cache
+C:\Users\Austin\Documents\CS_Classes\CS_480\BeizerCurves\Beizer-Curver\BeizerCurves\obj\Debug\BeizerCurves.exe
+C:\Users\Austin\Documents\CS_Classes\CS_480\BeizerCurves\Beizer-Curver\BeizerCurves\obj\Debug\BeizerCurves.pdb

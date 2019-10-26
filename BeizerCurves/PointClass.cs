@@ -32,6 +32,7 @@ namespace BeizerCurves
             y = cpy.y;
             z = cpy.z;
             Dimension = cpy.Dimension;
+            PointColor = cpy.PointColor;
         }
 
         public void SetComponent(int component, double value)
