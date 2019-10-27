@@ -334,6 +334,7 @@ namespace BeizerCurves
                 int index;
 
                 Pen pen = new Pen(Color.Blue);
+                pen.Width = 1;
 
                 double[] vars = new double[NumberPoints + 1];
 
@@ -418,19 +419,7 @@ namespace BeizerCurves
 
                 WorldPoint.Dimension = 2;
 
-                for (index = 0; index < WorldScreenPoints.Length-4; index++)
-                {
-                    WorldPoint = WorldScreenPoints[index];
-                    pixel.x = (WorldPoint.x - Ranges[0].x) / dv[0];
-                    pixel.y = (WorldPoint.y - Ranges[0].y) / dv[1];
-                    pixel.PointColor = WorldPoint.PointColor;
-
-                    if ((int)pixel.x < PicCanvas.ClientSize.Width && (int)pixel.x >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) < PicCanvas.ClientSize.Height)
-                    {
-                        bm.SetPixel((int)pixel.x, (int)(PicCanvas.ClientSize.Height - pixel.y), pixel.PointColor);
-                    }
-                }
-
+                index = WorldScreenPoints.Length - 4;
                 WorldPoint = WorldScreenPoints[index];
                 int ax = (int)((WorldPoint.x - Ranges[0].x) / dv[0]);
                 int ay = (int)((WorldPoint.y - Ranges[0].y) / dv[1]);
@@ -445,9 +434,24 @@ namespace BeizerCurves
 
                     if ((int)pixel.x < PicCanvas.ClientSize.Width && (int)pixel.x >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) < PicCanvas.ClientSize.Height)
                     {
-                        g.DrawLine(pen, ax, PicCanvas.ClientSize.Height - ay, (int)pixel.x, (int)(PicCanvas.ClientSize.Height-pixel.y));
+                        g.DrawLine(pen, ax, PicCanvas.ClientSize.Height - ay, (int)pixel.x, (int)(PicCanvas.ClientSize.Height - pixel.y));
                     }
                 }
+
+                for (index = 0; index < WorldScreenPoints.Length-4; index++)
+                {
+                    WorldPoint = WorldScreenPoints[index];
+                    pixel.x = (WorldPoint.x - Ranges[0].x) / dv[0];
+                    pixel.y = (WorldPoint.y - Ranges[0].y) / dv[1];
+                    pixel.PointColor = WorldPoint.PointColor;
+
+                    if ((int)pixel.x < PicCanvas.ClientSize.Width && (int)pixel.x >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) < PicCanvas.ClientSize.Height)
+                    {
+                        bm.SetPixel((int)pixel.x, (int)(PicCanvas.ClientSize.Height - pixel.y), pixel.PointColor);
+                    }
+                }
+
+                
 
 
                 PicCanvas.Image = bm;
