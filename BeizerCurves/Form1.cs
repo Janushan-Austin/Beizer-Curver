@@ -66,7 +66,7 @@ namespace BeizerCurves
             //ProccessPoints("(-1,0, 2), (1, 15,7) ,(3,8,100), (7,6,15)");
 
 
-            if (ProccessPoints("(-1,0, 0), (3, 0,500),     (7,0,0)", ref Points, out NumberPoints))
+            if ( ProccessPoints("(-1,0, 0), (3, 0,500), (7,0,0)", ref Points, out NumberPoints) )
             {
                 //AxisOrigin = new PointClass(Points[0]);
                 
@@ -336,6 +336,13 @@ namespace BeizerCurves
                 Pen pen = new Pen(Color.Blue);
                 pen.Width = 1;
 
+                Font font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+                SolidBrush brush = new SolidBrush(Color.Orange);
+
+                int ax;
+                int ay;
+                string AxisLetter = "";
+
                 double[] vars = new double[NumberPoints + 1];
 
                 for (double t = 0.0; t <= 1.0; t += TStep)
@@ -421,8 +428,8 @@ namespace BeizerCurves
 
                 index = WorldScreenPoints.Length - 4;
                 WorldPoint = WorldScreenPoints[index];
-                int ax = (int)((WorldPoint.x - Ranges[0].x) / dv[0]);
-                int ay = (int)((WorldPoint.y - Ranges[0].y) / dv[1]);
+                ax = (int)((WorldPoint.x - Ranges[0].x) / dv[0]);
+                ay = (int)((WorldPoint.y - Ranges[0].y) / dv[1]);
                 index++;
 
                 for (; index < WorldScreenPoints.Length; index++)
@@ -432,9 +439,26 @@ namespace BeizerCurves
                     pixel.y = (WorldPoint.y - Ranges[0].y) / dv[1];
                     pen.Color = WorldPoint.PointColor;
 
+                    if(index == WorldScreenPoints.Length - 3)
+                    {
+                        AxisLetter = "x";
+                        g.DrawString(AxisLetter, font, brush, (int)pixel.x, PicCanvas.ClientSize.Height - (int)pixel.y);
+                    }
+                    else if(index == WorldScreenPoints.Length - 2)
+                    {
+                        AxisLetter = "y";
+                        g.DrawString(AxisLetter, font, brush, (int)pixel.x, PicCanvas.ClientSize.Height - (int)pixel.y);
+                    }
+                    else
+                    {
+                        AxisLetter = "z";
+                        g.DrawString(AxisLetter, font, brush, (int)pixel.x, PicCanvas.ClientSize.Height - (int)pixel.y);
+                    }
+
                     if ((int)pixel.x < PicCanvas.ClientSize.Width && (int)pixel.x >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) < PicCanvas.ClientSize.Height)
                     {
                         g.DrawLine(pen, ax, PicCanvas.ClientSize.Height - ay, (int)pixel.x, (int)(PicCanvas.ClientSize.Height - pixel.y));
+                        
                     }
                 }
 
