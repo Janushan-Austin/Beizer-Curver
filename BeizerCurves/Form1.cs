@@ -26,20 +26,21 @@ namespace BeizerCurves
         PointClass CameraPos;
 
         PointClass AxisOrigin = null;
-        PointClass XAxis, YAxis, ZAxis;
         double XAxisLength, YAxisLength, ZAxisLength;
 
         double TStep;
+
+        String[] InputPoints;
 
         #region Constructor and Setup functions
         public BeizerCurve()
         {
             CurrentDimension = 3;
-            
+
             BeizerFunction = new ExpressionParser();
 
             Points = new PointClass[5];
-            for(int i=0; i< Points.Length; i++)
+            for (int i = 0; i < Points.Length; i++)
             {
                 Points[i] = new PointClass();
             }
@@ -47,30 +48,44 @@ namespace BeizerCurves
             CameraPos = new PointClass(0, 0, -500.5);
 
             Ranges = new PointClass[2];
-            for(int i=0; i<Ranges.Length; i++)
+            for (int i = 0; i < Ranges.Length; i++)
             {
                 Ranges[i] = new PointClass();
             }
 
             //TStep = 0.00001;
-            TStep = 0.0001;
+            TStep = 0.00005;
             WorldPoints = new List<PointClass>();
 
             InitializeComponent();
             SetupPicture();
 
-            XAxis = new PointClass(); YAxis = new PointClass(); ZAxis = new PointClass();
-            
+            while(PointSelecter.Items.Count > 2)
+            {
+                PointSelecter.Items.RemoveAt(PointSelecter.Items.Count - 1);
+            }
 
-            //ProccessPoints("(-2,-1) , (0,-13), (0,-14), (0.25,-14.59), (0.3, -14), (1.51, 0)");
-            //ProccessPoints("(-1,0, 2), (1, 15,7) ,(3,8,100), (7,6,15)");
+            InputPoints = new string[PointSelecter.Items.Count];
+            for(int i=0; i< InputPoints.Length; i++)
+            {
+                InputPoints[i] = "(0, 0, 0)";
+            }
+            PointSelecter.SelectedIndex = 0;
+
+            CreateNewGraph();
+        }
 
 
-            if ( ProccessPoints("(-1,0, 0), (3, 0,500), (7,0,0)", ref Points, out NumberPoints) )
+        private void CreateNewGraph()
+        {
+            //"(-1,0, 0), (3, 30,100), (7,13,0), (10, 18, 5)"
+            string expr = CreatePoints();
+            if (ProccessPoints(expr, ref Points, out NumberPoints))
             {
                 //AxisOrigin = new PointClass(Points[0]);
-                
+
                 Ranges = CalculateRange(Points, false);
+                AxisOrigin = new PointClass(Ranges[0]);
                 XAxisLength = Ranges[1].x - Ranges[0].x;
                 YAxisLength = Ranges[1].y - Ranges[0].y;
                 ZAxisLength = Ranges[1].z - Ranges[0].z;
@@ -85,6 +100,19 @@ namespace BeizerCurves
             }
         }
 
+        private string CreatePoints()
+        {
+            string allPoints = "";
+
+            for (int i=0; i< InputPoints.Length-1; i++)
+            {
+                allPoints += InputPoints[i] + ",";
+            }
+            allPoints += InputPoints[InputPoints.Length - 1];
+
+            return allPoints;
+        }
+
         private void SetupPicture()
         {
             PicCanvas = new PictureBox
@@ -92,7 +120,7 @@ namespace BeizerCurves
                 Size = new Size(ClientSize.Width - 100, ClientSize.Height - 100),
                 Name = "picCanvas"
             };
-            this.PicCanvas.Location = new System.Drawing.Point(90, 50);
+            this.PicCanvas.Location = new System.Drawing.Point(90, 70);
             this.Controls.Add(this.PicCanvas);
             bm = new Bitmap(PicCanvas.ClientSize.Width, PicCanvas.ClientSize.Height);
         }
@@ -116,7 +144,6 @@ namespace BeizerCurves
             }
 
             BeizerFunction.EvaluateExpression(equation);
-            //MessageBox.Show(BeizerFunction.GetVars());
         }
 
         #endregion
@@ -134,6 +161,23 @@ namespace BeizerCurves
             if (!GetPoints(pointsList, ref points, out numberPoints))
             {
                 //MessageBox.Show("Invalid set of Points");
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool ProccessPoint(String point)
+        {
+            if(!DeleteSpaces(ref point))
+            {
+                return false;
+            }
+
+            PointClass[] points = new PointClass[1];
+            points[0] = new PointClass();
+            if (!GetPoints(point, ref points, out int x))
+            {
                 return false;
             }
 
@@ -191,6 +235,7 @@ namespace BeizerCurves
                 {
                     ResizePoints(ref points);
                 }
+
                 while (i < Expr.Length && Expr[i] != ')')
                 {
                     if (Expr[i] == ',')
@@ -217,7 +262,7 @@ namespace BeizerCurves
                     i++;
 
                 }
-                if (commaCount == CurrentDimension - 1 && StringIsFloat(currentNumber))
+                if (commaCount == CurrentDimension - 1 && StringIsFloat(currentNumber) && i < Expr.Length)
                 {
                     points[pointCount].SetComponent(commaCount, StringToFloat(currentNumber));
                 }
@@ -337,7 +382,7 @@ namespace BeizerCurves
                 pen.Width = 1;
 
                 Font font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-                SolidBrush brush = new SolidBrush(Color.Orange);
+                SolidBrush brush = new SolidBrush(Color.Red);
 
                 int ax;
                 int ay;
@@ -360,19 +405,9 @@ namespace BeizerCurves
                     WorldPoint = new PointClass();
                 }
 
+                List<PointClass> axesPoints = CalculateAxesPoints(AxisOrigin, XAxisLength, YAxisLength, ZAxisLength);
 
-                AxisOrigin = new PointClass(WorldPoints.Index(0));
-
-                XAxis = AxisOrigin + new PointClass(XAxisLength,0,0);
-                XAxis.PointColor = Color.Pink;
-
-                YAxis = AxisOrigin + new PointClass(0,YAxisLength,0);
-                YAxis.PointColor = Color.Pink;
-
-                ZAxis = AxisOrigin + new PointClass(0, 0, ZAxisLength);
-                ZAxis.PointColor = Color.Pink;
-
-                WorldScreenPoints = new PointClass[WorldPoints.GetLength() + NumberPoints + 4];
+                WorldScreenPoints = new PointClass[WorldPoints.GetLength() + NumberPoints + axesPoints.GetLength()];
                 //WorldScreenPoints = new PointClass[WorldPoints.GetLength()];
                 int PointCount = WorldPoints.GetLength();
                 for (int i = 0; i < PointCount; i++)
@@ -390,12 +425,11 @@ namespace BeizerCurves
                     WorldScreenPoints[PointCount + i].PointColor = Color.White;
                 }
 
-
-                WorldScreenPoints[PointCount + NumberPoints] = new PointClass(AxisOrigin);
-                WorldScreenPoints[PointCount + NumberPoints + 1] = new PointClass(XAxis);
-                WorldScreenPoints[PointCount + NumberPoints + 2] = new PointClass(YAxis);
-                WorldScreenPoints[PointCount + NumberPoints + 3] = new PointClass(ZAxis);
-
+                int axesPointCount = axesPoints.GetLength();
+                for (int i = 0; i < axesPointCount; i++)
+                {
+                    WorldScreenPoints[PointCount + NumberPoints + i] = new PointClass(axesPoints.RemoveFront());
+                }
 
 
                 //Let A be CameraPos.x, B be CameraPos.y, D be CameraPos.z
@@ -426,60 +460,110 @@ namespace BeizerCurves
 
                 WorldPoint.Dimension = 2;
 
-                index = WorldScreenPoints.Length - 4;
+                index = WorldScreenPoints.Length - axesPointCount;
                 WorldPoint = WorldScreenPoints[index];
                 ax = (int)((WorldPoint.x - Ranges[0].x) / dv[0]);
                 ay = (int)((WorldPoint.y - Ranges[0].y) / dv[1]);
                 index++;
 
-                for (; index < WorldScreenPoints.Length; index++)
+                for (; index < WorldScreenPoints.Length-axesPointCount+4; index++)
                 {
                     WorldPoint = WorldScreenPoints[index];
                     pixel.x = (WorldPoint.x - Ranges[0].x) / dv[0];
                     pixel.y = (WorldPoint.y - Ranges[0].y) / dv[1];
                     pen.Color = WorldPoint.PointColor;
 
-                    if(index == WorldScreenPoints.Length - 3)
+                    if(index == WorldScreenPoints.Length -axesPointCount + 3)
                     {
-                        AxisLetter = "x";
+                        AxisLetter = "z";
                         g.DrawString(AxisLetter, font, brush, (int)pixel.x, PicCanvas.ClientSize.Height - (int)pixel.y);
                     }
-                    else if(index == WorldScreenPoints.Length - 2)
+                    else if(index == WorldScreenPoints.Length -axesPointCount + 2)
                     {
                         AxisLetter = "y";
                         g.DrawString(AxisLetter, font, brush, (int)pixel.x, PicCanvas.ClientSize.Height - (int)pixel.y);
                     }
                     else
                     {
-                        AxisLetter = "z";
+                        AxisLetter = "x";
                         g.DrawString(AxisLetter, font, brush, (int)pixel.x, PicCanvas.ClientSize.Height - (int)pixel.y);
                     }
 
                     if ((int)pixel.x < PicCanvas.ClientSize.Width && (int)pixel.x >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) < PicCanvas.ClientSize.Height)
                     {
-                        g.DrawLine(pen, ax, PicCanvas.ClientSize.Height - ay, (int)pixel.x, (int)(PicCanvas.ClientSize.Height - pixel.y));
+                        g.DrawLine(pen, ax, PicCanvas.ClientSize.Height - ay, (int)pixel.x, (PicCanvas.ClientSize.Height - (int)pixel.y));
                         
                     }
                 }
 
-                for (index = 0; index < WorldScreenPoints.Length-4; index++)
+                WorldPoint = WorldScreenPoints[0];
+                ax = (int)((WorldPoint.x - Ranges[0].x) / dv[0]);
+                ay = (int)((WorldPoint.y - Ranges[0].y) / dv[1]);
+
+                for (index = 1; index < (WorldScreenPoints.Length-axesPointCount) - NumberPoints; index++)
                 {
                     WorldPoint = WorldScreenPoints[index];
                     pixel.x = (WorldPoint.x - Ranges[0].x) / dv[0];
                     pixel.y = (WorldPoint.y - Ranges[0].y) / dv[1];
-                    pixel.PointColor = WorldPoint.PointColor;
+                    //pixel.PointColor = WorldPoint.PointColor;
+                    pen.Color = WorldPoint.PointColor;
 
                     if ((int)pixel.x < PicCanvas.ClientSize.Width && (int)pixel.x >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) < PicCanvas.ClientSize.Height)
                     {
-                        bm.SetPixel((int)pixel.x, (int)(PicCanvas.ClientSize.Height - pixel.y), pixel.PointColor);
+                        //bm.SetPixel((int)pixel.x, (int)(PicCanvas.ClientSize.Height - pixel.y), pixel.PointColor);
+                        g.DrawLine(pen, ax, PicCanvas.ClientSize.Height - ay, (int)pixel.x, (PicCanvas.ClientSize.Height - (int)pixel.y));
                     }
+
+                    ax = (int)pixel.x;
+                    ay = (int)pixel.y;
                 }
 
-                
+                WorldPoint = WorldScreenPoints[index];
+                ax = (int)((WorldPoint.x - Ranges[0].x) / dv[0]);
+                ay = (int)((WorldPoint.y - Ranges[0].y) / dv[1]);
+                pen.Color = WorldPoint.PointColor;
+                index++;
 
+                for (; index< WorldScreenPoints.Length - axesPointCount; index++)
+                {
+                    WorldPoint = WorldScreenPoints[index];
+                    pixel.x = (WorldPoint.x - Ranges[0].x) / dv[0];
+                    pixel.y = (WorldPoint.y - Ranges[0].y) / dv[1];
+                    //pixel.PointColor = WorldPoint.PointColor;
+                    pen.Color = WorldPoint.PointColor;
+
+                    if ((int)pixel.x < PicCanvas.ClientSize.Width && (int)pixel.x >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) < PicCanvas.ClientSize.Height)
+                    {
+                        //bm.SetPixel((int)pixel.x, (int)(PicCanvas.ClientSize.Height - pixel.y), pixel.PointColor);
+                        g.DrawLine(pen, ax, PicCanvas.ClientSize.Height - ay, (int)pixel.x, (PicCanvas.ClientSize.Height - (int)pixel.y));
+                    }
+
+                    ax = (int)pixel.x;
+                    ay = (int)pixel.y;
+                }
 
                 PicCanvas.Image = bm;
             }
+        }
+
+        private List<PointClass> CalculateAxesPoints(PointClass origin, double xLength, double yLength, double zLength)
+        {
+            List<PointClass> list = new List<PointClass>();
+
+            xLength = Math.Abs(xLength);
+            yLength = Math.Abs(yLength);
+            zLength = Math.Abs(zLength);
+
+            double rangeX = xLength - origin.x;
+            double rangeY = yLength - origin.y;
+            double rangeZ = zLength - origin.z;
+
+            list.AddBack(new PointClass(origin));
+            list.AddBack(new PointClass(new PointClass(origin.x +xLength, origin.y, origin.z, Color.Pink)));
+            list.AddBack(new PointClass(new PointClass(origin.x, origin.y + yLength, origin.z, Color.Pink)));
+            list.AddBack(new PointClass(new PointClass(origin.x, origin.y, origin.z +zLength, Color.Pink)));
+
+            return list;
         }
 
         private void DrawBackGround(Color color = default(Color))
@@ -607,6 +691,81 @@ namespace BeizerCurves
             return ranges;
         }
 
+        private void PointSelecter_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if(PointSelecter.SelectedIndex >=0 && InputPoints[PointSelecter.SelectedIndex] != null)
+            {
+                InputPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex];
+            }
+            else
+            {
+                InputPointTextBox.Text = "(0, 0, 0)";
+            }
+        }
+
+        private void AddPointButton_Click(object sender, EventArgs e)
+        {
+            PointSelecter.Items.Add("Point " + (PointSelecter.Items.Count +1).ToString());
+            String[] inputs = InputPoints;
+            InputPoints = new String[PointSelecter.Items.Count];
+            if(inputs != null)
+            {
+                for(int i=0; i< inputs.Length; i++)
+                {
+                    InputPoints[i] = inputs[i];
+                }
+                InputPoints[InputPoints.Length - 1] = InputPoints[inputs.Length-1];
+            }
+            else
+            {
+                InputPoints[InputPoints.Length - 1] = "(0,0,0)";
+            }
+
+            
+        }
+
+        private void RemovePointButton_Click(object sender, EventArgs e)
+        {
+            if(PointSelecter.Items.Count > 0)
+            {
+                if (PointSelecter.SelectedIndex == PointSelecter.Items.Count - 1)
+                {
+                    PointSelecter.SelectedIndex = PointSelecter.Items.Count - 2;
+                    InputPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex];
+                }
+                PointSelecter.Items.RemoveAt(PointSelecter.Items.Count - 1);
+                String[] inputPoints = InputPoints;
+                if (PointSelecter.Items.Count > 0)
+                {
+                    
+                    InputPoints = new string[PointSelecter.Items.Count];
+                    for (int i = 0; i < InputPoints.Length; i++)
+                    {
+                        InputPoints[i] = inputPoints[i];
+                    }
+                }
+                else
+                {
+                    InputPoints = null;
+                }
+                CreateNewGraph();
+            }
+        }
+
+        private void UpdatePointButton_Click(object sender, EventArgs e)
+        {
+            if (PointSelecter.SelectedIndex >=0 && ProccessPoint(InputPointTextBox.Text))
+            {
+                InputPoints[PointSelecter.SelectedIndex] = InputPointTextBox.Text;
+                CreateNewGraph();
+            }
+            else
+            {
+
+                MessageBox.Show("Ivalid Point entered for Point" + (PointSelecter.SelectedIndex + 1).ToString());
+            }
+        }
+
         private void CameraChangeButton_Click(object sender, EventArgs e)
         {
             PointClass[] newCameraPos = null;
@@ -631,6 +790,11 @@ namespace BeizerCurves
                 MessageBox.Show("No valid point provided for new Camera position\n" +
                                 "Use format: \"(x1, y1, z1)\"");
             }
+        }
+
+        private void testObjects()
+        {
+            string s = PointSelecter.Items[0].ToString();
         }
     }
 
