@@ -36,12 +36,14 @@
             this.InputPointTextBox = new System.Windows.Forms.TextBox();
             this.UpdatePointButton = new System.Windows.Forms.Button();
             this.ConnectPointsCheckBox = new System.Windows.Forms.CheckBox();
+            this.AddHereButton = new System.Windows.Forms.Button();
+            this.RemoveHereButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // CameraChangeButton
             // 
             this.CameraChangeButton.Location = new System.Drawing.Point(236, 11);
-            this.CameraChangeButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.CameraChangeButton.Margin = new System.Windows.Forms.Padding(2);
             this.CameraChangeButton.Name = "CameraChangeButton";
             this.CameraChangeButton.Size = new System.Drawing.Size(92, 19);
             this.CameraChangeButton.TabIndex = 0;
@@ -64,7 +66,7 @@
             "point 1",
             "point 2"});
             this.PointSelecter.Location = new System.Drawing.Point(9, 11);
-            this.PointSelecter.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.PointSelecter.Margin = new System.Windows.Forms.Padding(2);
             this.PointSelecter.Name = "PointSelecter";
             this.PointSelecter.Size = new System.Drawing.Size(92, 21);
             this.PointSelecter.TabIndex = 2;
@@ -73,11 +75,12 @@
             // 
             // AddPointButton
             // 
-            this.AddPointButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.AddPointButton.Location = new System.Drawing.Point(9, 35);
-            this.AddPointButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.AddPointButton.AutoSize = true;
+            this.AddPointButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.AddPointButton.Location = new System.Drawing.Point(9, 68);
+            this.AddPointButton.Margin = new System.Windows.Forms.Padding(2);
             this.AddPointButton.Name = "AddPointButton";
-            this.AddPointButton.Size = new System.Drawing.Size(37, 28);
+            this.AddPointButton.Size = new System.Drawing.Size(46, 28);
             this.AddPointButton.TabIndex = 3;
             this.AddPointButton.Text = "Add End";
             this.AddPointButton.UseVisualStyleBackColor = true;
@@ -85,11 +88,11 @@
             // 
             // RemovePointButton
             // 
-            this.RemovePointButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.RemovePointButton.Location = new System.Drawing.Point(50, 35);
-            this.RemovePointButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.RemovePointButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.RemovePointButton.Location = new System.Drawing.Point(59, 68);
+            this.RemovePointButton.Margin = new System.Windows.Forms.Padding(2);
             this.RemovePointButton.Name = "RemovePointButton";
-            this.RemovePointButton.Size = new System.Drawing.Size(50, 28);
+            this.RemovePointButton.Size = new System.Drawing.Size(42, 28);
             this.RemovePointButton.TabIndex = 4;
             this.RemovePointButton.Text = "Remove End";
             this.RemovePointButton.UseVisualStyleBackColor = true;
@@ -98,19 +101,21 @@
             // InputPointTextBox
             // 
             this.InputPointTextBox.Location = new System.Drawing.Point(105, 11);
-            this.InputPointTextBox.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.InputPointTextBox.Margin = new System.Windows.Forms.Padding(2);
             this.InputPointTextBox.Name = "InputPointTextBox";
             this.InputPointTextBox.Size = new System.Drawing.Size(76, 20);
             this.InputPointTextBox.TabIndex = 6;
             // 
             // UpdatePointButton
             // 
-            this.UpdatePointButton.Location = new System.Drawing.Point(124, 33);
-            this.UpdatePointButton.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.UpdatePointButton.AutoSize = true;
+            this.UpdatePointButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 6.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.UpdatePointButton.Location = new System.Drawing.Point(105, 36);
+            this.UpdatePointButton.Margin = new System.Windows.Forms.Padding(2);
             this.UpdatePointButton.Name = "UpdatePointButton";
-            this.UpdatePointButton.Size = new System.Drawing.Size(56, 19);
+            this.UpdatePointButton.Size = new System.Drawing.Size(68, 29);
             this.UpdatePointButton.TabIndex = 7;
-            this.UpdatePointButton.Text = "Update";
+            this.UpdatePointButton.Text = "Update Point";
             this.UpdatePointButton.UseVisualStyleBackColor = true;
             this.UpdatePointButton.Click += new System.EventHandler(this.UpdatePointButton_Click);
             // 
@@ -125,11 +130,38 @@
             this.ConnectPointsCheckBox.UseVisualStyleBackColor = true;
             this.ConnectPointsCheckBox.CheckedChanged += new System.EventHandler(this.ConnectPointsCheckBox_CheckedChanged);
             // 
+            // AddHereButton
+            // 
+            this.AddHereButton.AutoSize = true;
+            this.AddHereButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.AddHereButton.Location = new System.Drawing.Point(9, 36);
+            this.AddHereButton.Margin = new System.Windows.Forms.Padding(2);
+            this.AddHereButton.Name = "AddHereButton";
+            this.AddHereButton.Size = new System.Drawing.Size(47, 28);
+            this.AddHereButton.TabIndex = 9;
+            this.AddHereButton.Text = "Add Here";
+            this.AddHereButton.UseVisualStyleBackColor = true;
+            this.AddHereButton.Click += new System.EventHandler(this.AddHereButton_Click);
+            // 
+            // RemoveHereButton
+            // 
+            this.RemoveHereButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.RemoveHereButton.Location = new System.Drawing.Point(59, 36);
+            this.RemoveHereButton.Margin = new System.Windows.Forms.Padding(2);
+            this.RemoveHereButton.Name = "RemoveHereButton";
+            this.RemoveHereButton.Size = new System.Drawing.Size(42, 28);
+            this.RemoveHereButton.TabIndex = 10;
+            this.RemoveHereButton.Text = "Remove Here";
+            this.RemoveHereButton.UseVisualStyleBackColor = true;
+            this.RemoveHereButton.Click += new System.EventHandler(this.RemoveHereButton_Click);
+            // 
             // BeizerCurve
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(600, 650);
+            this.ClientSize = new System.Drawing.Size(800, 874);
+            this.Controls.Add(this.RemoveHereButton);
+            this.Controls.Add(this.AddHereButton);
             this.Controls.Add(this.ConnectPointsCheckBox);
             this.Controls.Add(this.UpdatePointButton);
             this.Controls.Add(this.InputPointTextBox);
@@ -138,7 +170,7 @@
             this.Controls.Add(this.PointSelecter);
             this.Controls.Add(this.DeltaCameraInput);
             this.Controls.Add(this.CameraChangeButton);
-            this.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "BeizerCurve";
             this.Text = "Beizure Curve";
             this.ResumeLayout(false);
@@ -156,6 +188,8 @@
         private System.Windows.Forms.TextBox InputPointTextBox;
         private System.Windows.Forms.Button UpdatePointButton;
         private System.Windows.Forms.CheckBox ConnectPointsCheckBox;
+        private System.Windows.Forms.Button AddHereButton;
+        private System.Windows.Forms.Button RemoveHereButton;
     }
 }
 

@@ -107,10 +107,10 @@ namespace BeizerCurves
         {
             PicCanvas = new PictureBox
             {
-                Size = new Size(ClientSize.Width - 100, ClientSize.Height - 100),
+                Size = new Size(ClientSize.Width - 200, ClientSize.Height - 100),
                 Name = "picCanvas"
             };
-            this.PicCanvas.Location = new System.Drawing.Point(90, 70);
+            this.PicCanvas.Location = new System.Drawing.Point(150, 75);
             this.Controls.Add(this.PicCanvas);
             bm = new Bitmap(PicCanvas.ClientSize.Width, PicCanvas.ClientSize.Height);
         }
@@ -668,7 +668,7 @@ namespace BeizerCurves
                 InputPoints[InputPoints.Length - 1] = "(0,0,0)";
             }
 
-            
+            PointSelecter.SelectedIndex = PointSelecter.Items.Count - 1;
         }
 
         private void RemovePointButton_Click(object sender, EventArgs e)
@@ -680,7 +680,7 @@ namespace BeizerCurves
 
             if(PointSelecter.Items.Count > 0)
             {
-                if (PointSelecter.SelectedIndex == PointSelecter.Items.Count - 1)
+                if (PointSelecter.SelectedIndex == - 1)
                 {
                     PointSelecter.SelectedIndex = PointSelecter.Items.Count - 1;
                     InputPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex];
@@ -725,6 +725,62 @@ namespace BeizerCurves
             if (InputPoints.Length > 0)
             {
                 CreateNewGraph();
+            }
+        }
+
+        private void AddHereButton_Click(object sender, EventArgs e)
+        {
+            string[] inputs = InputPoints;
+            PointSelecter.Items.Add("Point " + (PointSelecter.Items.Count + 1).ToString());
+            InputPoints = new string[PointSelecter.Items.Count];
+            int i = 0;
+            for(; i<= PointSelecter.SelectedIndex; i++)
+            {
+                InputPoints[i] = inputs[i];
+            }
+            for(; i<PointSelecter.Items.Count; i++)
+            {
+                InputPoints[i] = inputs[i-1];
+            }
+
+        }
+
+        private void RemoveHereButton_Click(object sender, EventArgs e)
+        {
+            if(PointSelecter.SelectedIndex >= 0)
+            {
+                string[] inputs = InputPoints;
+
+                for(int i= PointSelecter.SelectedIndex; i < PointSelecter.Items.Count-1; i++)
+                {
+                    inputs[i] = inputs[i + 1];
+                }
+                PointSelecter.Items.RemoveAt(PointSelecter.Items.Count - 1);
+                if (PointSelecter.Items.Count > 0)
+                {
+                    InputPoints = new string[PointSelecter.Items.Count];
+                    for (int i = 0; i < InputPoints.Length; i++)
+                    {
+                        InputPoints[i] = inputs[i];
+                    }
+                    if (PointSelecter.SelectedIndex >= 0)
+                    {
+                        InputPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex];
+                    }
+                    else
+                    {
+                        PointSelecter.SelectedIndex = PointSelecter.Items.Count - 1;
+                    }
+                }
+                else
+                {
+                    InputPoints = null;
+                    InputPointTextBox.Text = "";
+                }
+            }
+            else
+            {
+                MessageBox.Show("Please select a valid point to remove");
             }
         }
 
