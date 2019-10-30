@@ -100,19 +100,6 @@ namespace BeizerCurves
             }
         }
 
-        private string CreatePoints()
-        {
-            string allPoints = "";
-
-            for (int i=0; i< InputPoints.Length-1; i++)
-            {
-                allPoints += InputPoints[i] + ",";
-            }
-            allPoints += InputPoints[InputPoints.Length - 1];
-
-            return allPoints;
-        }
-
         private void SetupPicture()
         {
             PicCanvas = new PictureBox
@@ -149,6 +136,19 @@ namespace BeizerCurves
         #endregion
 
         #region Proccess Points
+
+        private string CreatePoints()
+        {
+            string allPoints = "";
+
+            for (int i = 0; i < InputPoints.Length - 1; i++)
+            {
+                allPoints += InputPoints[i] + ",";
+            }
+            allPoints += InputPoints[InputPoints.Length - 1];
+
+            return allPoints;
+        }
 
         private bool ProccessPoints(string pointsList, ref PointClass[] points, out int numberPoints)
         {
@@ -546,6 +546,15 @@ namespace BeizerCurves
             }
         }
 
+        private void DrawBackGround(Color color = default(Color))
+        {
+            using (Graphics g = Graphics.FromImage(bm))
+            {
+                g.Clear(Color.Black);
+                PicCanvas.Image = bm;
+            }
+        }
+
         private List<PointClass> CalculateAxesPoints(PointClass origin, double xLength, double yLength, double zLength)
         {
             List<PointClass> list = new List<PointClass>();
@@ -564,84 +573,6 @@ namespace BeizerCurves
             list.AddBack(new PointClass(new PointClass(origin.x, origin.y, origin.z +zLength, Color.Pink)));
 
             return list;
-        }
-
-        private void DrawBackGround(Color color = default(Color))
-        {
-            using (Graphics g = Graphics.FromImage(bm))
-            {
-                g.Clear(Color.Black);
-                PicCanvas.Image = bm;
-            }
-        }
-
-        private Point CalculateProjection(Point p)
-        {
-            Point ProjectedPoint = new Point();
-
-            return ProjectedPoint;
-        }
-
-        private void SetCameraPos()
-        {
-            PointClass Maxs = new PointClass(), Mins = new PointClass();
-
-            Maxs = WorldPoints.Index(0);
-            Mins = WorldPoints.Index(0);
-
-            for (int i = 0; i < WorldPoints.GetLength(); i++)
-            {
-
-                for (int j = 0; j < CurrentDimension; j++)
-                {
-                    if (Maxs.GetComponent(j) > WorldPoints.Index(i).GetComponent(j))
-                    {
-                        Maxs.SetComponent(j, WorldPoints.Index(i).GetComponent(j));
-                    }
-                    else if (Mins.GetComponent(j) < WorldPoints.Index(i).GetComponent(j))
-                    {
-                        Mins.SetComponent(j, WorldPoints.Index(i).GetComponent(j));
-                    }
-                }
-            }
-            for (int i = 0; i < CurrentDimension; i++)
-            {
-                if (Math.Abs(Maxs.GetComponent(i)) > Math.Abs(Mins.GetComponent(i)))
-                {
-                    if (Maxs.GetComponent(i) > 0)
-                    {
-                        Ranges[0].SetComponent(i,-Maxs.GetComponent(i));
-                        Ranges[1].SetComponent(i, Maxs.GetComponent(i));
-                    }
-                    else
-                    {
-                        Ranges[0].SetComponent(i, Maxs.GetComponent(i));
-                        Ranges[1].SetComponent(i, -Maxs.GetComponent(i));
-                    }
-                }
-                else
-                {
-                    if (Mins.GetComponent(i) < 0)
-                    {
-                        Ranges[0].SetComponent(i, Mins.GetComponent(i));
-                        Ranges[1].SetComponent(i, -Mins.GetComponent(i));
-                    }
-                    else
-                    {
-                        Ranges[0].SetComponent(i, -Mins.GetComponent(i));
-                        Ranges[1].SetComponent(i, Mins.GetComponent(i));
-                    }
-                }
-            }
-
-            for (int i = 0; i < 2; i++)
-            {
-                CameraPos.SetComponent(i, (Ranges[0].GetComponent(i) + Ranges[1].GetComponent(i)) / 2);
-                Ranges[0].SetComponent(i,  Ranges[0].GetComponent(i) + Math.Abs(Ranges[0].GetComponent(i)) * -0.05);
-                Ranges[1].SetComponent(i, Ranges[1].GetComponent(i) + Ranges[1].GetComponent(i) * 0.05);
-            }
-
-            CameraPos.z = -1;
         }
 
         private PointClass[] CalculateRange(PointClass[] points, bool WidenRange = true)
@@ -697,6 +628,10 @@ namespace BeizerCurves
             {
                 InputPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex];
             }
+            else if(PointSelecter.SelectedIndex < 0)
+            {
+                InputPointTextBox.Text = "";
+            }
             else
             {
                 InputPointTextBox.Text = "(0, 0, 0)";
@@ -728,12 +663,17 @@ namespace BeizerCurves
         {
             if(PointSelecter.Items.Count > 0)
             {
+                PointSelecter.Items.RemoveAt(PointSelecter.Items.Count - 1);
+            }
+
+            if(PointSelecter.Items.Count > 0)
+            {
                 if (PointSelecter.SelectedIndex == PointSelecter.Items.Count - 1)
                 {
-                    PointSelecter.SelectedIndex = PointSelecter.Items.Count - 2;
+                    PointSelecter.SelectedIndex = PointSelecter.Items.Count - 1;
                     InputPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex];
                 }
-                PointSelecter.Items.RemoveAt(PointSelecter.Items.Count - 1);
+                
                 String[] inputPoints = InputPoints;
                 if (PointSelecter.Items.Count > 0)
                 {
@@ -744,11 +684,13 @@ namespace BeizerCurves
                         InputPoints[i] = inputPoints[i];
                     }
                 }
-                else
-                {
-                    InputPoints = null;
-                }
+                
                 CreateNewGraph();
+            }
+            else
+            {
+                InputPoints = null;
+                InputPointTextBox.Text = "";
             }
         }
 

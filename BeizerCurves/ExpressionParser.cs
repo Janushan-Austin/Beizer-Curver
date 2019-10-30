@@ -37,9 +37,13 @@ namespace BeizerCurves
         public ExpressionParser()
         {
             Root = new ArithmeticNode();
+            SetupIdentifiers();
+        }
+
+        private void SetupIdentifiers()
+        {
             Identifiers = new string[5];
             numIdentifiers = 0;
-
         }
 
         public int GetNumberofIdentifiers()
@@ -65,6 +69,7 @@ namespace BeizerCurves
             {
                 DeleteExpression(ref Root);
                 Root = new ArithmeticNode();
+                SetupIdentifiers();
             }
             EvaluateExpression(ref Root, exp);
         }
