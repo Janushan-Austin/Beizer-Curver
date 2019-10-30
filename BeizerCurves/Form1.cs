@@ -35,6 +35,9 @@ namespace BeizerCurves
         #region Constructor and Setup functions
         public BeizerCurve()
         {
+            InitializeComponent();
+            SetupPicture();
+
             CurrentDimension = 3;
 
             BeizerFunction = new ExpressionParser();
@@ -45,7 +48,8 @@ namespace BeizerCurves
                 Points[i] = new PointClass();
             }
 
-            CameraPos = new PointClass(0, 0, -500.5);
+            CameraPos = new PointClass(100, 100, -500);
+            DeltaCameraInput.Text = PointToString(CameraPos);
 
             Ranges = new PointClass[2];
             for (int i = 0; i < Ranges.Length; i++)
@@ -57,8 +61,7 @@ namespace BeizerCurves
             TStep = 0.00005;
             WorldPoints = new List<PointClass>();
 
-            InitializeComponent();
-            SetupPicture();
+            
 
             while(PointSelecter.Items.Count > 2)
             {
@@ -363,6 +366,11 @@ namespace BeizerCurves
 
         }
 
+        private string PointToString(PointClass point)
+        {
+            return "(" + point.x.ToString() + ", " + point.y.ToString() + ", " + point.z.ToString() + ")";
+        }
+
         #endregion
 
         private void Draw()
@@ -524,22 +532,26 @@ namespace BeizerCurves
                 pen.Color = WorldPoint.PointColor;
                 index++;
 
-                for (; index< WorldScreenPoints.Length - axesPointCount; index++)
+                if (ConnectPointsCheckBox.Checked == true)
                 {
-                    WorldPoint = WorldScreenPoints[index];
-                    pixel.x = (WorldPoint.x - Ranges[0].x) / dv[0];
-                    pixel.y = (WorldPoint.y - Ranges[0].y) / dv[1];
-                    //pixel.PointColor = WorldPoint.PointColor;
-                    pen.Color = WorldPoint.PointColor;
-
-                    if ((int)pixel.x < PicCanvas.ClientSize.Width && (int)pixel.x >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) < PicCanvas.ClientSize.Height)
+                    //Draw Lines between the user defined points
+                    for (; index < WorldScreenPoints.Length - axesPointCount; index++)
                     {
-                        //bm.SetPixel((int)pixel.x, (int)(PicCanvas.ClientSize.Height - pixel.y), pixel.PointColor);
-                        g.DrawLine(pen, ax, PicCanvas.ClientSize.Height - ay, (int)pixel.x, (PicCanvas.ClientSize.Height - (int)pixel.y));
-                    }
+                        WorldPoint = WorldScreenPoints[index];
+                        pixel.x = (WorldPoint.x - Ranges[0].x) / dv[0];
+                        pixel.y = (WorldPoint.y - Ranges[0].y) / dv[1];
+                        //pixel.PointColor = WorldPoint.PointColor;
+                        pen.Color = WorldPoint.PointColor;
 
-                    ax = (int)pixel.x;
-                    ay = (int)pixel.y;
+                        if ((int)pixel.x < PicCanvas.ClientSize.Width && (int)pixel.x >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) < PicCanvas.ClientSize.Height)
+                        {
+                            //bm.SetPixel((int)pixel.x, (int)(PicCanvas.ClientSize.Height - pixel.y), pixel.PointColor);
+                            g.DrawLine(pen, ax, PicCanvas.ClientSize.Height - ay, (int)pixel.x, (PicCanvas.ClientSize.Height - (int)pixel.y));
+                        }
+
+                        ax = (int)pixel.x;
+                        ay = (int)pixel.y;
+                    }
                 }
 
                 PicCanvas.Image = bm;
@@ -705,6 +717,14 @@ namespace BeizerCurves
             {
 
                 MessageBox.Show("Ivalid Point entered for Point" + (PointSelecter.SelectedIndex + 1).ToString());
+            }
+        }
+
+        private void ConnectPointsCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (InputPoints.Length > 0)
+            {
+                CreateNewGraph();
             }
         }
 
