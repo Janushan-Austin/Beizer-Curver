@@ -98,5 +98,10 @@ namespace BeizerCurves
 
             return value;
         }
+
+        public override string ToString()
+        {
+            return "(" + x.ToString() + "," + y.ToString() + "," + z.ToString() + ")"; 
+        }
     }
 }

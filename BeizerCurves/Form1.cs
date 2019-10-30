@@ -30,7 +30,7 @@ namespace BeizerCurves
 
         double TStep;
 
-        String[] InputPoints;
+        PointClass[] InputPoints;
 
         #region Constructor and Setup functions
         public BeizerCurve()
@@ -68,10 +68,12 @@ namespace BeizerCurves
                 PointSelecter.Items.RemoveAt(PointSelecter.Items.Count - 1);
             }
 
-            InputPoints = new string[PointSelecter.Items.Count];
+            InputPoints = new PointClass[PointSelecter.Items.Count];
             for(int i=0; i< InputPoints.Length; i++)
             {
-                InputPoints[i] = "(0, 0, 0)";
+                InputPoints[i] = new PointClass(i,i,i);
+                //InputPoints[i] = "(" + i.ToString() + "," + i.ToString() +","  + i.ToString() + ")";
+                PointSelecter.Items[i] = "Point " + (i + 1).ToString() + ": " + InputPoints[i].ToString();
             }
             PointSelecter.SelectedIndex = 0;
 
@@ -110,7 +112,7 @@ namespace BeizerCurves
                 Size = new Size(ClientSize.Width - 200, ClientSize.Height - 100),
                 Name = "picCanvas"
             };
-            this.PicCanvas.Location = new System.Drawing.Point(150, 75);
+            this.PicCanvas.Location = new System.Drawing.Point(190, 50);
             this.Controls.Add(this.PicCanvas);
             bm = new Bitmap(PicCanvas.ClientSize.Width, PicCanvas.ClientSize.Height);
         }
@@ -638,37 +640,46 @@ namespace BeizerCurves
         {
             if(PointSelecter.SelectedIndex >=0 && InputPoints[PointSelecter.SelectedIndex] != null)
             {
-                InputPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex];
+                XPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex].x.ToString();
+                YPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex].y.ToString();
+                ZPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex].z.ToString();
             }
             else if(PointSelecter.SelectedIndex < 0)
             {
-                InputPointTextBox.Text = "";
+                XPointTextBox.Text = "";
+                YPointTextBox.Text = "";
+                ZPointTextBox.Text = "";
             }
             else
             {
-                InputPointTextBox.Text = "(0, 0, 0)";
+                //XPointTextBox.Text = "0";
+                //YPointTextBox.Text = "0"; 
+                //ZPointTextBox.Text = "0";
+                //PointSelecter.Items[PointSelecter.SelectedIndex] = "Point " + (PointSelecter.SelectedIndex + 1).ToString() +
+                MessageBox.Show("Program broke!!!!!");
             }
         }
 
         private void AddPointButton_Click(object sender, EventArgs e)
         {
             PointSelecter.Items.Add("Point " + (PointSelecter.Items.Count +1).ToString());
-            String[] inputs = InputPoints;
-            InputPoints = new String[PointSelecter.Items.Count];
+            PointClass[] inputs = InputPoints;
+            InputPoints = new PointClass[PointSelecter.Items.Count];
             if(inputs != null)
             {
                 for(int i=0; i< inputs.Length; i++)
                 {
-                    InputPoints[i] = inputs[i];
+                    InputPoints[i] = new PointClass(inputs[i]);
                 }
-                InputPoints[InputPoints.Length - 1] = InputPoints[inputs.Length-1];
+                InputPoints[InputPoints.Length - 1] = new PointClass(InputPoints[inputs.Length-1]);
             }
             else
             {
-                InputPoints[InputPoints.Length - 1] = "(0,0,0)";
+                InputPoints[InputPoints.Length - 1] = new PointClass(0,0,0);
             }
 
             PointSelecter.SelectedIndex = PointSelecter.Items.Count - 1;
+            PointSelecter.Items[PointSelecter.SelectedIndex] += InputPoints[PointSelecter.SelectedIndex].ToString();
         }
 
         private void RemovePointButton_Click(object sender, EventArgs e)
@@ -683,14 +694,16 @@ namespace BeizerCurves
                 if (PointSelecter.SelectedIndex == - 1)
                 {
                     PointSelecter.SelectedIndex = PointSelecter.Items.Count - 1;
-                    InputPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex];
+                    XPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex].x.ToString();
+                    YPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex].y.ToString();
+                    ZPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex].z.ToString();
                 }
                 
-                String[] inputPoints = InputPoints;
+                PointClass[] inputPoints = InputPoints;
                 if (PointSelecter.Items.Count > 0)
                 {
                     
-                    InputPoints = new string[PointSelecter.Items.Count];
+                    InputPoints = new PointClass[PointSelecter.Items.Count];
                     for (int i = 0; i < InputPoints.Length; i++)
                     {
                         InputPoints[i] = inputPoints[i];
@@ -702,15 +715,37 @@ namespace BeizerCurves
             else
             {
                 InputPoints = null;
-                InputPointTextBox.Text = "";
+                XPointTextBox.Text = "";
+                YPointTextBox.Text = "";
+                ZPointTextBox.Text = "";
             }
         }
 
         private void UpdatePointButton_Click(object sender, EventArgs e)
         {
-            if (PointSelecter.SelectedIndex >=0 && ProccessPoint(InputPointTextBox.Text))
+            PointClass point = new PointClass();
+            if(StringIsFloat(XPointTextBox.Text) == false)
             {
-                InputPoints[PointSelecter.SelectedIndex] = InputPointTextBox.Text;
+                XPointTextBox.Text = "0"; 
+            }           
+            point.x = StringToFloat(XPointTextBox.Text);
+
+            if (StringIsFloat(YPointTextBox.Text) == false)
+            {
+                YPointTextBox.Text = "0";
+            }
+            point.y = StringToFloat(YPointTextBox.Text);
+
+            if (StringIsFloat(ZPointTextBox.Text) == false)
+            {
+                ZPointTextBox.Text = "0";
+            }
+            point.z = StringToFloat(ZPointTextBox.Text);
+
+            if (PointSelecter.SelectedIndex >=0 && ProccessPoint(point.ToString()))
+            {
+                InputPoints[PointSelecter.SelectedIndex] = point;
+                PointSelecter.Items[PointSelecter.SelectedIndex] = "Point " + (PointSelecter.SelectedIndex + 1).ToString() +": " + point;
                 CreateNewGraph();
             }
             else
@@ -722,7 +757,7 @@ namespace BeizerCurves
 
         private void ConnectPointsCheckBox_CheckedChanged(object sender, EventArgs e)
         {
-            if (InputPoints.Length > 0)
+            if (InputPoints?.Length > 0)
             {
                 CreateNewGraph();
             }
@@ -730,9 +765,14 @@ namespace BeizerCurves
 
         private void AddHereButton_Click(object sender, EventArgs e)
         {
-            string[] inputs = InputPoints;
+            if(PointSelecter.Items.Count <= 0)
+            {
+                AddPointButton_Click(null,null);
+                return;
+            }
+            PointClass[] inputs = InputPoints;
             PointSelecter.Items.Add("Point " + (PointSelecter.Items.Count + 1).ToString());
-            InputPoints = new string[PointSelecter.Items.Count];
+            InputPoints = new PointClass[PointSelecter.Items.Count];
             int i = 0;
             for(; i<= PointSelecter.SelectedIndex; i++)
             {
@@ -741,6 +781,7 @@ namespace BeizerCurves
             for(; i<PointSelecter.Items.Count; i++)
             {
                 InputPoints[i] = inputs[i-1];
+                PointSelecter.Items[i] = "Point " + (i+1).ToString() +  inputs[i - 1].ToString();
             }
 
         }
@@ -749,23 +790,26 @@ namespace BeizerCurves
         {
             if(PointSelecter.SelectedIndex >= 0)
             {
-                string[] inputs = InputPoints;
+                PointClass[] inputs = InputPoints;
 
                 for(int i= PointSelecter.SelectedIndex; i < PointSelecter.Items.Count-1; i++)
                 {
                     inputs[i] = inputs[i + 1];
+                    PointSelecter.Items[i] = "Point "  + (i + 1).ToString() + inputs[i].ToString(); 
                 }
                 PointSelecter.Items.RemoveAt(PointSelecter.Items.Count - 1);
                 if (PointSelecter.Items.Count > 0)
                 {
-                    InputPoints = new string[PointSelecter.Items.Count];
+                    InputPoints = new PointClass[PointSelecter.Items.Count];
                     for (int i = 0; i < InputPoints.Length; i++)
                     {
                         InputPoints[i] = inputs[i];
                     }
                     if (PointSelecter.SelectedIndex >= 0)
                     {
-                        InputPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex];
+                        XPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex].x.ToString();
+                        YPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex].y.ToString();
+                        ZPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex].z.ToString();
                     }
                     else
                     {
@@ -775,7 +819,9 @@ namespace BeizerCurves
                 else
                 {
                     InputPoints = null;
-                    InputPointTextBox.Text = "";
+                    XPointTextBox.Text = "";
+                    YPointTextBox.Text = "";
+                    ZPointTextBox.Text = "";
                 }
             }
             else
@@ -801,7 +847,7 @@ namespace BeizerCurves
                     return;
                 }
                 CameraPos = new PointClass(newCameraPos[0]);
-                Draw();
+                CreateNewGraph();
             }
             else
             {
