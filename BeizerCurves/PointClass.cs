@@ -14,15 +14,23 @@ namespace BeizerCurves
         public double y;
         public double z;
         public Color PointColor;
+        public double PointSize;
 
         public int Dimension;
 
-        public PointClass(double _x = 0, double _y = 0, double _z = 0, Color color = default(Color) , int dimension = 3)
+        public PointClass(double _x = 0, double _y = 0, double _z = 0, Color color = default(Color) , double size = 1, int dimension = 3)
         {
             x = _x;
             y = _y;
             z = _z;
             PointColor = color;
+
+            if(size < 0)
+            {
+                size = 0;
+            }
+            PointSize = size;
+
             Dimension = dimension;
         }
 
@@ -101,7 +109,7 @@ namespace BeizerCurves
 
         public override string ToString()
         {
-            return "(" + x.ToString() + "," + y.ToString() + "," + z.ToString() + ")"; 
+            return "(" + Math.Round(x,2).ToString() + ", " + Math.Round(y, 2).ToString() + ", " + Math.Round(z, 2).ToString() + ")"; 
         }
     }
 }

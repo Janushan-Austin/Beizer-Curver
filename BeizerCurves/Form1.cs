@@ -49,7 +49,9 @@ namespace BeizerCurves
             }
 
             CameraPos = new PointClass(100, 100, -500);
-            DeltaCameraInput.Text = PointToString(CameraPos);
+            XCameraTextBox.Text = CameraPos.x.ToString();
+            YCameraTextBox.Text = CameraPos.y.ToString();
+            ZCameraTextBox.Text = CameraPos.z.ToString();
 
             Ranges = new PointClass[2];
             for (int i = 0; i < Ranges.Length; i++)
@@ -58,12 +60,12 @@ namespace BeizerCurves
             }
 
             //TStep = 0.00001;
-            TStep = 0.00005;
+            TStep = 0.00002;
             WorldPoints = new List<PointClass>();
 
             
 
-            while(PointSelecter.Items.Count > 2)
+            while(PointSelecter.Items.Count > 3)
             {
                 PointSelecter.Items.RemoveAt(PointSelecter.Items.Count - 1);
             }
@@ -71,7 +73,7 @@ namespace BeizerCurves
             InputPoints = new PointClass[PointSelecter.Items.Count];
             for(int i=0; i< InputPoints.Length; i++)
             {
-                InputPoints[i] = new PointClass(i,i,i);
+                InputPoints[i] = new PointClass(i + i*2,i + i*3.7,i + i*2.5);
                 //InputPoints[i] = "(" + i.ToString() + "," + i.ToString() +","  + i.ToString() + ")";
                 PointSelecter.Items[i] = "Point " + (i + 1).ToString() + ": " + InputPoints[i].ToString();
             }
@@ -112,7 +114,7 @@ namespace BeizerCurves
                 Size = new Size(ClientSize.Width - 200, ClientSize.Height - 100),
                 Name = "picCanvas"
             };
-            this.PicCanvas.Location = new System.Drawing.Point(190, 50);
+            this.PicCanvas.Location = new System.Drawing.Point(190, 24);
             this.Controls.Add(this.PicCanvas);
             bm = new Bitmap(PicCanvas.ClientSize.Width, PicCanvas.ClientSize.Height);
         }
@@ -368,10 +370,6 @@ namespace BeizerCurves
 
         }
 
-        private string PointToString(PointClass point)
-        {
-            return "(" + point.x.ToString() + ", " + point.y.ToString() + ", " + point.z.ToString() + ")";
-        }
 
         #endregion
 
@@ -452,6 +450,7 @@ namespace BeizerCurves
                         double num = WorldScreenPoints[i].GetComponent(j) - CameraPos.GetComponent(j);
                         WorldScreenPoints[i].SetComponent(j, CameraPos.GetComponent(j) + num / den);
                     }
+                    WorldScreenPoints[i].PointSize = (6 * CalculateDepth(WorldScreenPoints[i].z, Ranges));
                 }
 
                 Ranges = CalculateRange(WorldScreenPoints);
@@ -517,6 +516,7 @@ namespace BeizerCurves
                     pixel.y = (WorldPoint.y - Ranges[0].y) / dv[1];
                     //pixel.PointColor = WorldPoint.PointColor;
                     pen.Color = WorldPoint.PointColor;
+                    pen.Width = (float)WorldPoint.PointSize;
 
                     if ((int)pixel.x < PicCanvas.ClientSize.Width && (int)pixel.x >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) >= 0 && (int)(PicCanvas.ClientSize.Height - pixel.y) < PicCanvas.ClientSize.Height)
                     {
@@ -536,6 +536,7 @@ namespace BeizerCurves
 
                 if (ConnectPointsCheckBox.Checked == true)
                 {
+                    pen.Width = 1;
                     //Draw Lines between the user defined points
                     for (; index < WorldScreenPoints.Length - axesPointCount; index++)
                     {
@@ -589,6 +590,11 @@ namespace BeizerCurves
             return list;
         }
 
+        private double CalculateDepth(double z, PointClass[] ranges)
+        {
+            return  1 - (z / (ranges[1].z - ranges[0].z));
+        }
+
         private PointClass[] CalculateRange(PointClass[] points, bool WidenRange = true)
         {
             //PointClass Maxs = new PointClass(dimension: points[0].Dimension), Mins = new PointClass(dimension: points[0].Dimension);
@@ -640,9 +646,9 @@ namespace BeizerCurves
         {
             if(PointSelecter.SelectedIndex >=0 && InputPoints[PointSelecter.SelectedIndex] != null)
             {
-                XPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex].x.ToString();
-                YPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex].y.ToString();
-                ZPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex].z.ToString();
+                XPointTextBox.Text = Math.Round(InputPoints[PointSelecter.SelectedIndex].x,2).ToString();
+                YPointTextBox.Text = Math.Round(InputPoints[PointSelecter.SelectedIndex].y,2).ToString();
+                ZPointTextBox.Text = Math.Round(InputPoints[PointSelecter.SelectedIndex].z,2).ToString();
             }
             else if(PointSelecter.SelectedIndex < 0)
             {
@@ -662,7 +668,7 @@ namespace BeizerCurves
 
         private void AddPointButton_Click(object sender, EventArgs e)
         {
-            PointSelecter.Items.Add("Point " + (PointSelecter.Items.Count +1).ToString());
+            PointSelecter.Items.Add("Point " + (PointSelecter.Items.Count +1).ToString() + ": ");
             PointClass[] inputs = InputPoints;
             InputPoints = new PointClass[PointSelecter.Items.Count];
             if(inputs != null)
@@ -694,9 +700,9 @@ namespace BeizerCurves
                 if (PointSelecter.SelectedIndex == - 1)
                 {
                     PointSelecter.SelectedIndex = PointSelecter.Items.Count - 1;
-                    XPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex].x.ToString();
-                    YPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex].y.ToString();
-                    ZPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex].z.ToString();
+                    XPointTextBox.Text = Math.Round(InputPoints[PointSelecter.SelectedIndex].x, 2).ToString();
+                    YPointTextBox.Text = Math.Round(InputPoints[PointSelecter.SelectedIndex].y, 2).ToString();
+                    ZPointTextBox.Text = Math.Round(InputPoints[PointSelecter.SelectedIndex].z, 2).ToString();
                 }
                 
                 PointClass[] inputPoints = InputPoints;
@@ -771,7 +777,7 @@ namespace BeizerCurves
                 return;
             }
             PointClass[] inputs = InputPoints;
-            PointSelecter.Items.Add("Point " + (PointSelecter.Items.Count + 1).ToString());
+            PointSelecter.Items.Add("Point " + (PointSelecter.Items.Count + 1).ToString() + ": ");
             InputPoints = new PointClass[PointSelecter.Items.Count];
             int i = 0;
             for(; i<= PointSelecter.SelectedIndex; i++)
@@ -781,7 +787,7 @@ namespace BeizerCurves
             for(; i<PointSelecter.Items.Count; i++)
             {
                 InputPoints[i] = inputs[i-1];
-                PointSelecter.Items[i] = "Point " + (i+1).ToString() +  inputs[i - 1].ToString();
+                PointSelecter.Items[i] = "Point " + (i+1).ToString() +  ": " + inputs[i - 1].ToString();
             }
 
         }
@@ -807,9 +813,9 @@ namespace BeizerCurves
                     }
                     if (PointSelecter.SelectedIndex >= 0)
                     {
-                        XPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex].x.ToString();
-                        YPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex].y.ToString();
-                        ZPointTextBox.Text = InputPoints[PointSelecter.SelectedIndex].z.ToString();
+                        XPointTextBox.Text = Math.Round(InputPoints[PointSelecter.SelectedIndex].x, 2).ToString();
+                        YPointTextBox.Text = Math.Round(InputPoints[PointSelecter.SelectedIndex].y, 2).ToString();
+                        ZPointTextBox.Text = Math.Round(InputPoints[PointSelecter.SelectedIndex].z, 2).ToString();
                     }
                     else
                     {
@@ -832,33 +838,40 @@ namespace BeizerCurves
 
         private void CameraChangeButton_Click(object sender, EventArgs e)
         {
-            PointClass[] newCameraPos = null;
-            if (ProccessPoints(DeltaCameraInput.Text, ref newCameraPos, out int numberPoints))
+            PointClass newCameraPos = null;
+            if(StringIsFloat(XCameraTextBox.Text) && StringIsFloat(YCameraTextBox.Text) && StringIsFloat(ZCameraTextBox.Text))
             {
-                if (numberPoints > 1)
-                {
-                    MessageBox.Show("Too many points provided for the Camera position, using the first found point\n" +
-                                    "Use format: \"(x1, y1, z1)\"");
-                }
-                else if (numberPoints <= 0)
-                {
-                    MessageBox.Show("No valid point provided for new Camera position" +
-                                    "Use format: \"(x1, y1, z1)\"");
-                    return;
-                }
-                CameraPos = new PointClass(newCameraPos[0]);
+                //newCameraPos = new PointClass();
+                CameraPos.x = StringToFloat(XCameraTextBox.Text);
+                CameraPos.y = StringToFloat(YCameraTextBox.Text);
+                CameraPos.z = StringToFloat(ZCameraTextBox.Text);
                 CreateNewGraph();
             }
             else
             {
-                MessageBox.Show("No valid point provided for new Camera position\n" +
-                                "Use format: \"(x1, y1, z1)\"");
+                MessageBox.Show("Invalid Camera position provided.");
             }
-        }
-
-        private void testObjects()
-        {
-            string s = PointSelecter.Items[0].ToString();
+            //if (ProccessPoint(XCameraTextBox.Text))
+            //{
+            //    if (numberPoints > 1)
+            //    {
+            //        MessageBox.Show("Too many points provided for the Camera position, using the first found point\n" +
+            //                        "Use format: \"(x1, y1, z1)\"");
+            //    }
+            //    else if (numberPoints <= 0)
+            //    {
+            //        MessageBox.Show("No valid point provided for new Camera position" +
+            //                        "Use format: \"(x1, y1, z1)\"");
+            //        return;
+            //    }
+            //    CameraPos = new PointClass(newCameraPos[0]);
+            //    CreateNewGraph();
+            //}
+            //else
+            //{
+            //    MessageBox.Show("No valid point provided for new Camera position\n" +
+            //                    "Use format: \"(x1, y1, z1)\"");
+            //}
         }
     }
 
