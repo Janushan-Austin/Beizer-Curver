@@ -450,7 +450,8 @@ namespace BeizerCurves
                         double num = WorldScreenPoints[i].GetComponent(j) - CameraPos.GetComponent(j);
                         WorldScreenPoints[i].SetComponent(j, CameraPos.GetComponent(j) + num / den);
                     }
-                    WorldScreenPoints[i].PointSize = (6 * CalculateDepth(WorldScreenPoints[i].z, Ranges));
+                    //WorldScreenPoints[i].PointSize = (6 * CalculateDepth(WorldScreenPoints[i].z, Ranges));
+                    WorldScreenPoints[i].PointSize = (6 / CalculateDistance(WorldScreenPoints[i], CameraPos));
                 }
 
                 Ranges = CalculateRange(WorldScreenPoints);
@@ -593,6 +594,11 @@ namespace BeizerCurves
         private double CalculateDepth(double z, PointClass[] ranges)
         {
             return  1 - (z / (ranges[1].z - ranges[0].z));
+        }
+
+        private double CalculateDistance(PointClass pt1, PointClass pt2)
+        {
+            return Math.Sqrt(Math.Pow(pt2.x - pt1.x, 2) + Math.Pow(pt2.y - pt1.y, 2) + Math.Pow(pt2.z - pt1.z,2));
         }
 
         private PointClass[] CalculateRange(PointClass[] points, bool WidenRange = true)

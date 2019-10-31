@@ -53,7 +53,7 @@
             this.CameraChangeButton.Location = new System.Drawing.Point(138, 153);
             this.CameraChangeButton.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.CameraChangeButton.Name = "CameraChangeButton";
-            this.CameraChangeButton.Size = new System.Drawing.Size(95, 43);
+            this.CameraChangeButton.Size = new System.Drawing.Size(97, 43);
             this.CameraChangeButton.TabIndex = 0;
             this.CameraChangeButton.Text = "Update Camera";
             this.CameraChangeButton.UseVisualStyleBackColor = true;
@@ -78,7 +78,7 @@
             this.PointSelecter.Location = new System.Drawing.Point(10, 12);
             this.PointSelecter.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.PointSelecter.Name = "PointSelecter";
-            this.PointSelecter.Size = new System.Drawing.Size(223, 24);
+            this.PointSelecter.Size = new System.Drawing.Size(225, 24);
             this.PointSelecter.TabIndex = 2;
             this.PointSelecter.Tag = "";
             this.PointSelecter.SelectedIndexChanged += new System.EventHandler(this.PointSelecter_SelectedIndexChanged);
