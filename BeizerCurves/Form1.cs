@@ -24,6 +24,7 @@ namespace BeizerCurves
 
         PointClass[] Ranges;
         PointClass CameraPos;
+        PointClass LightPos;
 
         PointClass AxisOrigin = null;
         double XAxisLength, YAxisLength, ZAxisLength;
@@ -78,6 +79,9 @@ namespace BeizerCurves
                 PointSelecter.Items[i] = "Point " + (i + 1).ToString() + ": " + InputPoints[i].ToString();
             }
             PointSelecter.SelectedIndex = 0;
+
+            LightPos = new PointClass(10, 10, 10, Color.White);
+
 
             CreateNewGraph();
         }
