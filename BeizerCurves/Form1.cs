@@ -24,7 +24,10 @@ namespace BeizerCurves
 
         PointClass[] Ranges;
         PointClass CameraPos;
+
         PointClass LightPos;
+        PointClass SphereCenter;
+        double SphereRadius;
 
         PointClass AxisOrigin = null;
         double XAxisLength, YAxisLength, ZAxisLength;
@@ -81,6 +84,8 @@ namespace BeizerCurves
             PointSelecter.SelectedIndex = 0;
 
             LightPos = new PointClass(10, 10, 10, Color.White);
+            SphereCenter = new PointClass();
+            SphereRadius = 0.0;
 
 
             CreateNewGraph();
@@ -420,14 +425,18 @@ namespace BeizerCurves
                 List<PointClass> axesPoints = CalculateAxesPoints(AxisOrigin, XAxisLength, YAxisLength, ZAxisLength);
 
                 WorldScreenPoints = new PointClass[WorldPoints.GetLength() + NumberPoints + axesPoints.GetLength()];
+                PointClass[] spherePoints = new PointClass[WorldPoints.GetLength()];
                 //WorldScreenPoints = new PointClass[WorldPoints.GetLength()];
                 int PointCount = WorldPoints.GetLength();
                 for (int i = 0; i < PointCount; i++)
-                {
+                { 
                     WorldScreenPoints[i] = WorldPoints.RemoveFront();
-                    WorldScreenPoints[i].Dimension = 2;
+                    WorldScreenPoints[i].Dimension = 3;
                     WorldScreenPoints[i].PointColor = Color.Green;
+                    spherePoints[i] = WorldScreenPoints[i];
                 }
+
+                CreateSphereAroundPoints(spherePoints);
 
 
                 for (int i = 0; i < NumberPoints; i++)
@@ -573,6 +582,49 @@ namespace BeizerCurves
                 g.Clear(Color.Black);
                 PicCanvas.Image = bm;
             }
+        }
+
+
+        private void CreateSphereAroundPoints(PointClass[] points)
+        {
+            PointClass[] ranges = CalculateRange(points);
+            PointClass center = CalculateGravity(points);
+
+            SphereRadius = Math.Abs(ranges[0].x - center.x);
+
+            for (int i=0; i<ranges.Length; i++)
+            {
+                if(Math.Abs(ranges[i].x - center.x) > SphereRadius)
+                {
+                    SphereRadius = Math.Abs(ranges[i].x - center.x);
+                }
+                if (Math.Abs(ranges[i].y - center.y) > SphereRadius)
+                {
+                    SphereRadius = Math.Abs(ranges[i].y - center.y);
+                }
+                if (Math.Abs(ranges[i].z - center.z) > SphereRadius)
+                {
+                    SphereRadius = Math.Abs(ranges[i].z - center.z);
+                }
+            }
+
+            int x = 0;
+        }
+
+        private PointClass CalculateGravity(PointClass[] points)
+        {
+            PointClass center = new PointClass();
+
+            for(int i=0; i< points.Length; i++)
+            {
+                center += points[i];
+            }
+
+            center.x /= points.Length;
+            center.y /= points.Length;
+            center.z /= points.Length;
+
+            return center;
         }
 
         private List<PointClass> CalculateAxesPoints(PointClass origin, double xLength, double yLength, double zLength)
