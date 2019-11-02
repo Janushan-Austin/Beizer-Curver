@@ -90,10 +90,6 @@ namespace BeizerCurves
         public static Vec4 operator *(Vec4 lhs, Mat4x4 rhs)
         {
             Vec4 ans = new Vec4();
-            for(int i=0; i<4; i++)
-            {
-                ans.Vector[i] = lhs.Vector[0] * rhs.Mat[i][0] + lhs.Vector[1] * rhs.Mat[i][1] + lhs.Vector[2] * rhs.Mat[i][2] + lhs.Vector[3] * rhs.Mat[i][3];
-            }
             return ans;
         }
 

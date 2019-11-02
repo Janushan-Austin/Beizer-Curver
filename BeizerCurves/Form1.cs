@@ -26,6 +26,8 @@ namespace BeizerCurves
         PointClass CameraPos;
 
         PointClass LightPos;
+        int DiffuseLight;
+        int AmbientLight;
         PointClass SphereCenter;
         double SphereRadius;
 
@@ -83,7 +85,13 @@ namespace BeizerCurves
             }
             PointSelecter.SelectedIndex = 0;
 
-            LightPos = new PointClass(10, 10, 10, Color.White);
+            LightPos = new PointClass(-30, -50, -100, Color.White);
+            XLightPosTextBox.Text = LightPos.x.ToString();
+            YLightPosTextBox.Text = LightPos.y.ToString();
+            ZLightPosTextBox.Text = LightPos.z.ToString();
+
+            DiffuseLight = (int)(240*.85);
+            AmbientLight = (int)(240*.15);
             SphereCenter = new PointClass();
             SphereRadius = 0.0;
 
@@ -467,6 +475,11 @@ namespace BeizerCurves
                     WorldScreenPoints[i].PointSize = (6 / CalculateDistance(WorldScreenPoints[i], CameraPos));
                 }
 
+                for(int i=0; i< PointCount; i++)
+                {
+                    CalculateLighting(WorldScreenPoints[i]);
+                }
+
                 Ranges = CalculateRange(WorldScreenPoints);
 
                 double[] dv = new double[WorldScreenPoints[0].Dimension];
@@ -588,23 +601,23 @@ namespace BeizerCurves
         private void CreateSphereAroundPoints(PointClass[] points)
         {
             PointClass[] ranges = CalculateRange(points);
-            PointClass center = CalculateGravity(points);
+            SphereCenter = CalculateGravity(points);
 
-            SphereRadius = Math.Abs(ranges[0].x - center.x);
+            SphereRadius = Math.Abs(ranges[0].x - SphereCenter.x);
 
             for (int i=0; i<ranges.Length; i++)
             {
-                if(Math.Abs(ranges[i].x - center.x) > SphereRadius)
+                if(Math.Abs(ranges[i].x - SphereCenter.x) > SphereRadius)
                 {
-                    SphereRadius = Math.Abs(ranges[i].x - center.x);
+                    SphereRadius = Math.Abs(ranges[i].x - SphereCenter.x);
                 }
-                if (Math.Abs(ranges[i].y - center.y) > SphereRadius)
+                if (Math.Abs(ranges[i].y - SphereCenter.y) > SphereRadius)
                 {
-                    SphereRadius = Math.Abs(ranges[i].y - center.y);
+                    SphereRadius = Math.Abs(ranges[i].y - SphereCenter.y);
                 }
-                if (Math.Abs(ranges[i].z - center.z) > SphereRadius)
+                if (Math.Abs(ranges[i].z - SphereCenter.z) > SphereRadius)
                 {
-                    SphereRadius = Math.Abs(ranges[i].z - center.z);
+                    SphereRadius = Math.Abs(ranges[i].z - SphereCenter.z);
                 }
             }
 
@@ -625,6 +638,41 @@ namespace BeizerCurves
             center.z /= points.Length;
 
             return center;
+        }
+
+        private void CalculateLighting(PointClass screenPoint)
+        {
+            PointClass spherePoint = new PointClass();
+            Vec4 normal, lightNormal;
+            double A, B, C, t, dot;
+            A = Math.Pow(CameraPos.x - screenPoint.x, 2) + Math.Pow(CameraPos.y - screenPoint.y, 2) + Math.Pow(CameraPos.z, 2);
+            B = (CameraPos.x - screenPoint.x) * (CameraPos.x - SphereCenter.x) + (CameraPos.y - screenPoint.y) * (CameraPos.y - SphereCenter.y) + (CameraPos.z) * (CameraPos.z - SphereCenter.z);
+            C = Math.Pow(CameraPos.x - SphereCenter.x, 2) + Math.Pow(CameraPos.y - SphereCenter.y, 2) + Math.Pow(CameraPos.z- SphereCenter.z, 2) - Math.Pow(SphereRadius,2);
+
+            t = (B - Math.Sqrt(Math.Pow(B, 2) - A * C)) / A;
+
+            spherePoint.x = CameraPos.x * (1 - t) + screenPoint.x * t;
+            spherePoint.y = CameraPos.y * (1 - t) + screenPoint.y * t;
+            spherePoint.x = CameraPos.z * (1 - t);
+
+            PointClass sphereNormal = spherePoint - SphereCenter;
+            normal = new Vec4(sphereNormal.x, sphereNormal.y, sphereNormal.z);
+
+            //sphereNormal = spherePoint - LightPos;
+            sphereNormal = LightPos - spherePoint;
+            lightNormal = new Vec4(sphereNormal.x, sphereNormal.y, sphereNormal.z);
+
+            normal = Vec4.Normal(normal);
+            lightNormal = Vec4.Normal(lightNormal);
+
+            dot = normal.Dot(lightNormal);
+            if(dot < 0)
+            {
+                dot = 0;
+            }
+
+            screenPoint.PointColor = Color.FromArgb((int)(DiffuseLight * dot) + AmbientLight, (int)(DiffuseLight * dot) + AmbientLight, (int)(DiffuseLight * dot) + AmbientLight);
+
         }
 
         private List<PointClass> CalculateAxesPoints(PointClass origin, double xLength, double yLength, double zLength)
@@ -854,6 +902,8 @@ namespace BeizerCurves
 
         }
 
+        
+
         private void RemoveHereButton_Click(object sender, EventArgs e)
         {
             if(PointSelecter.SelectedIndex >= 0)
@@ -900,7 +950,6 @@ namespace BeizerCurves
 
         private void CameraChangeButton_Click(object sender, EventArgs e)
         {
-            PointClass newCameraPos = null;
             if(StringIsFloat(XCameraTextBox.Text) && StringIsFloat(YCameraTextBox.Text) && StringIsFloat(ZCameraTextBox.Text))
             {
                 //newCameraPos = new PointClass();
@@ -913,27 +962,22 @@ namespace BeizerCurves
             {
                 MessageBox.Show("Invalid Camera position provided.");
             }
-            //if (ProccessPoint(XCameraTextBox.Text))
-            //{
-            //    if (numberPoints > 1)
-            //    {
-            //        MessageBox.Show("Too many points provided for the Camera position, using the first found point\n" +
-            //                        "Use format: \"(x1, y1, z1)\"");
-            //    }
-            //    else if (numberPoints <= 0)
-            //    {
-            //        MessageBox.Show("No valid point provided for new Camera position" +
-            //                        "Use format: \"(x1, y1, z1)\"");
-            //        return;
-            //    }
-            //    CameraPos = new PointClass(newCameraPos[0]);
-            //    CreateNewGraph();
-            //}
-            //else
-            //{
-            //    MessageBox.Show("No valid point provided for new Camera position\n" +
-            //                    "Use format: \"(x1, y1, z1)\"");
-            //}
+        }
+
+        private void LightPositionButton_Click(object sender, EventArgs e)
+        {
+            if (StringIsFloat(XLightPosTextBox.Text) && StringIsFloat(YLightPosTextBox.Text) && StringIsFloat(ZLightPosTextBox.Text))
+            {
+                //newCameraPos = new PointClass();
+                LightPos.x = StringToFloat(XLightPosTextBox.Text);
+                LightPos.y = StringToFloat(YLightPosTextBox.Text);
+                LightPos.z = StringToFloat(ZLightPosTextBox.Text);
+                CreateNewGraph();
+            }
+            else
+            {
+                MessageBox.Show("Invalid Light position provided.");
+            }
         }
     }
 
