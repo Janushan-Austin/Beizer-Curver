@@ -26,8 +26,10 @@ namespace BeizerCurves
         PointClass CameraPos;
 
         PointClass LightPos;
-        int DiffuseLight;
-        int AmbientLight;
+        Vec4 LightColor;
+        Vec4 DiffuseLight;
+        Vec4 AmbientLight;
+
         PointClass SphereCenter;
         double SphereRadius;
 
@@ -90,8 +92,9 @@ namespace BeizerCurves
             YLightPosTextBox.Text = LightPos.y.ToString();
             ZLightPosTextBox.Text = LightPos.z.ToString();
 
-            DiffuseLight = (int)(240*.85);
-            AmbientLight = (int)(240*.15);
+            LightColor = new Vec4(0.5, 0.75, 0.5);
+            AmbientLight = .15 * LightColor;
+
             SphereCenter = new PointClass();
             SphereRadius = 0.0;
 
@@ -642,9 +645,10 @@ namespace BeizerCurves
 
         private void CalculateLighting(PointClass screenPoint)
         {
-            PointClass spherePoint = new PointClass();
+            PointClass spherePoint = new PointClass(), sphereNormal;
             Vec4 normal, lightNormal;
             double A, B, C, t, dot;
+
             A = Math.Pow(CameraPos.x - screenPoint.x, 2) + Math.Pow(CameraPos.y - screenPoint.y, 2) + Math.Pow(CameraPos.z, 2);
             B = (CameraPos.x - screenPoint.x) * (CameraPos.x - SphereCenter.x) + (CameraPos.y - screenPoint.y) * (CameraPos.y - SphereCenter.y) + (CameraPos.z) * (CameraPos.z - SphereCenter.z);
             C = Math.Pow(CameraPos.x - SphereCenter.x, 2) + Math.Pow(CameraPos.y - SphereCenter.y, 2) + Math.Pow(CameraPos.z- SphereCenter.z, 2) - Math.Pow(SphereRadius,2);
@@ -655,10 +659,11 @@ namespace BeizerCurves
             spherePoint.y = CameraPos.y * (1 - t) + screenPoint.y * t;
             spherePoint.x = CameraPos.z * (1 - t);
 
-            PointClass sphereNormal = spherePoint - SphereCenter;
+            //Calculate the normal, tagent to the sphere surface
+            sphereNormal = spherePoint - SphereCenter;
             normal = new Vec4(sphereNormal.x, sphereNormal.y, sphereNormal.z);
 
-            //sphereNormal = spherePoint - LightPos;
+            //Calculate vector from Sphere surface to light source
             sphereNormal = LightPos - spherePoint;
             lightNormal = new Vec4(sphereNormal.x, sphereNormal.y, sphereNormal.z);
 
@@ -671,7 +676,15 @@ namespace BeizerCurves
                 dot = 0;
             }
 
-            screenPoint.PointColor = Color.FromArgb((int)(DiffuseLight * dot) + AmbientLight, (int)(DiffuseLight * dot) + AmbientLight, (int)(DiffuseLight * dot) + AmbientLight);
+            DiffuseLight = dot * LightColor;
+            Vec4 pointColor = new Vec4(screenPoint.PointColor);
+            pointColor *= 1/(double)255;
+
+            pointColor = (AmbientLight + DiffuseLight) * pointColor;
+
+            screenPoint.PointColor = Color.FromArgb((int)(255 * pointColor.x), (int)(255 * pointColor.y), (int)(255 * pointColor.z));
+
+            //screenPoint.PointColor = Color.FromArgb((int)(DiffuseLight * dot) + AmbientLight, (int)(DiffuseLight * dot) + AmbientLight, (int)(DiffuseLight * dot) + AmbientLight);
 
         }
 

@@ -33,12 +33,46 @@ namespace BeizerCurves
             w = vec.w;
         }
 
+        public Vec4(System.Drawing.Color col)
+        {
+            x = col.R;
+            y = col.G;
+            z = col.B;
+            w = col.A;
+        }
+
+        public static Vec4 operator *(Vec4 lhs, Vec4 rhs)
+        {
+            Vec4 ans = new Vec4(lhs);
+            ans.x *= rhs.x;
+            ans.y *= rhs.y;
+            ans.z *= rhs.z;
+
+            return ans;
+        }
+
         public static Vec4 operator *(Vec4 lhs, double rhs)
         {
             Vec4 ans = new Vec4(lhs);
             ans.x *= rhs;
             ans.y *= rhs;
             ans.z *= rhs;
+
+            return ans;
+        }
+
+        public static Vec4 operator *(double lhs, Vec4 rhs)
+        {
+            return rhs * lhs;
+        }
+
+        public static Vec4 operator +(Vec4 lhs, Vec4 rhs)
+        {
+            Vec4 ans = new Vec4(lhs);
+
+            ans.x += rhs.x;
+            ans.y += rhs.y;
+            ans.z += rhs.z;
 
             return ans;
         }
