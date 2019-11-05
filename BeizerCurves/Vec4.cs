@@ -35,9 +35,9 @@ namespace BeizerCurves
 
         public Vec4(System.Drawing.Color col)
         {
-            x = col.R;
-            y = col.G;
-            z = col.B;
+            x = col.R/255.0;
+            y = col.G/255.0;
+            z = col.B/255.0;
             w = col.A;
         }
 

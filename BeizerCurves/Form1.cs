@@ -29,6 +29,9 @@ namespace BeizerCurves
         Vec4 LightColor;
         Vec4 DiffuseLight;
         Vec4 AmbientLight;
+        double AmbientStrength;
+
+        Vec4 ObjectColor;
 
         PointClass SphereCenter;
         double SphereRadius;
@@ -93,7 +96,17 @@ namespace BeizerCurves
             ZLightPosTextBox.Text = LightPos.z.ToString();
 
             LightColor = new Vec4(0.5, 0.75, 0.5);
-            AmbientLight = .15 * LightColor;
+            LightColorR.Text = ((int)(LightColor.x * 255)).ToString();
+            LightColorG.Text = ((int)(LightColor.y * 255)).ToString();
+            LightColorB.Text = ((int)(LightColor.z * 255)).ToString();
+
+            AmbientStrength = 0.15;
+            AmbientLight = AmbientStrength * LightColor;
+
+            ObjectColor = new Vec4(Color.White);
+            ObjectColorRText.Text = ((int)ObjectColor.x * 255).ToString();
+            ObjectColorGText.Text = ((int)ObjectColor.y * 255).ToString();
+            ObjectColorBText.Text = ((int)ObjectColor.z * 255).ToString();
 
             SphereCenter = new PointClass();
             SphereRadius = 0.0;
@@ -443,7 +456,7 @@ namespace BeizerCurves
                 { 
                     WorldScreenPoints[i] = WorldPoints.RemoveFront();
                     WorldScreenPoints[i].Dimension = 3;
-                    WorldScreenPoints[i].PointColor = Color.Green;
+                    WorldScreenPoints[i].PointColor = Color.FromArgb((int)ObjectColor.x*255, (int)ObjectColor.y*255, (int)ObjectColor.z*255);
                     spherePoints[i] = WorldScreenPoints[i];
                 }
 
@@ -623,8 +636,6 @@ namespace BeizerCurves
                     SphereRadius = Math.Abs(ranges[i].z - SphereCenter.z);
                 }
             }
-
-            int x = 0;
         }
 
         private PointClass CalculateGravity(PointClass[] points)
@@ -678,9 +689,22 @@ namespace BeizerCurves
 
             DiffuseLight = dot * LightColor;
             Vec4 pointColor = new Vec4(screenPoint.PointColor);
-            pointColor *= 1/(double)255;
+           // pointColor *= 1/(double)255;
 
             pointColor = (AmbientLight + DiffuseLight) * pointColor;
+
+            if(pointColor.x > 1)
+            {
+                pointColor.x = 1;
+            }
+            if (pointColor.y > 1)
+            {
+                pointColor.y = 1;
+            }
+            if (pointColor.z > 1)
+            {
+                pointColor.z = 1;
+            }
 
             screenPoint.PointColor = Color.FromArgb((int)(255 * pointColor.x), (int)(255 * pointColor.y), (int)(255 * pointColor.z));
 
@@ -958,6 +982,39 @@ namespace BeizerCurves
             else
             {
                 MessageBox.Show("Please select a valid point to remove");
+            }
+        }
+
+        private void LightColorChangeButton_Click(object sender, EventArgs e)
+        {
+            if (StringIsFloat(LightColorR.Text) && StringIsFloat(LightColorG.Text) && StringIsFloat(LightColorB.Text))
+            {
+                //newCameraPos = new PointClass();
+                LightColor.x = StringToFloat(LightColorR.Text)/255;
+                LightColor.y = StringToFloat(LightColorG.Text)/255;
+                LightColor.z = StringToFloat(LightColorB.Text)/255;
+                AmbientLight = AmbientStrength * LightColor;
+                CreateNewGraph();
+            }
+            else
+            {
+                MessageBox.Show("Invalid Light color provided.");
+            }
+        }
+
+        private void ObjectColorButton_Click(object sender, EventArgs e)
+        {
+            if (StringIsFloat(ObjectColorRText.Text) && StringIsFloat(ObjectColorGText.Text) && StringIsFloat(ObjectColorBText.Text))
+            {
+                //newCameraPos = new PointClass();
+                ObjectColor.x = StringToFloat(ObjectColorRText.Text) / 255;
+                ObjectColor.y = StringToFloat(ObjectColorGText.Text) / 255;
+                ObjectColor.z = StringToFloat(ObjectColorBText.Text) / 255;
+                CreateNewGraph();
+            }
+            else
+            {
+                MessageBox.Show("Invalid Object color provided.");
             }
         }
 
