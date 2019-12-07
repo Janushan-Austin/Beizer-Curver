@@ -456,7 +456,7 @@ namespace BeizerCurves
                 { 
                     WorldScreenPoints[i] = WorldPoints.RemoveFront();
                     WorldScreenPoints[i].Dimension = 3;
-                    WorldScreenPoints[i].PointColor = Color.FromArgb((int)ObjectColor.x*255, (int)ObjectColor.y*255, (int)ObjectColor.z*255);
+                    WorldScreenPoints[i].PointColor = Color.FromArgb((int)(ObjectColor.x*255), (int)(ObjectColor.y*255), (int)(ObjectColor.z*255));
                     spherePoints[i] = WorldScreenPoints[i];
                 }
 
@@ -668,7 +668,7 @@ namespace BeizerCurves
 
             spherePoint.x = CameraPos.x * (1 - t) + screenPoint.x * t;
             spherePoint.y = CameraPos.y * (1 - t) + screenPoint.y * t;
-            spherePoint.x = CameraPos.z * (1 - t);
+            spherePoint.z = CameraPos.z * (1 - t);
 
             //Calculate the normal, tagent to the sphere surface
             sphereNormal = spherePoint - SphereCenter;
